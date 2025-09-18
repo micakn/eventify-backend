@@ -1,0 +1,20 @@
+[
+  {
+    "id": 1694770001000,
+    "nombre": "Laura Perez",
+    "rol": "planner",
+    "area": "Planificacion y Finanzas"
+  },
+  {
+    "id": 1694770001001,
+    "nombre": "Alex Lopez",
+    "rol": "administrador",
+    "area": "Administracion"
+  },
+  {
+    "id": 1694770001002,
+    "nombre": "Juan Gonzales",
+    "rol": "coordinador",
+    "area": "Produccion y Logistica"
+  }
+]

@@ -1,0 +1,11 @@
+[
+  {
+    "id": 100,
+    "nombre": "Empresa Tech",
+    "tipo": "empresa",
+    "contacto": {
+      "email": "contacto@acme.com",
+      "telefono": "+541122223333"
+    }
+  }
+]

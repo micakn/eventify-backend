@@ -1,0 +1,15 @@
+[
+  {
+    "id": 1694770002000,
+    "titulo": "Montaje de escenario",
+    "descripcion": "Montar estructura y sonido",
+    "estado": "pendiente",
+    "fechaInicio": "2025-09-20",
+    "fechaFin": "2025-09-21",
+    "prioridad": "alta",
+    "empleadoAsignado": 1694770001000,
+    "eventoAsignado": 1,
+    "horasEstimadas": 8,
+    "horasReales": 0
+  }
+]

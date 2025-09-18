@@ -1,0 +1,9 @@
+[
+  {
+    "id": 1,
+    "nombre": "Conferencia Tech",
+    "lugar": "Centro X",
+    "fecha": "2025-10-10",
+    "presupuesto": 500000
+  }
+]

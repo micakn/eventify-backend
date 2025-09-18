@@ -12,21 +12,23 @@ app.set("views", "./views");  // Carpeta de vistas
 
 // -------------------- Rutas --------------------
 
-// Ruta principal de prueba
+// Ruta principal 
 app.get('/', (req, res) => {
-  res.send('Bienvenido/a a Eventify');
+  res.render('index', { title: 'Eventify - Backend' });
 });
 
-// Rutas CRUD (datos en JSON)
+// Routers de cada módulo
 const tareaRoutes = require('./routes/tareaRoutes');
-app.use('/api/tareas', tareaRoutes); //http://localhost:3000/api/tareas
+app.use('/tareas', tareaRoutes);
 
-// Ruta para mostrar tareas en HTML
-app.get('/tareas', async (req, res) => {
-  const TareaModel = require('./models/TareaModel'); // Modelo que maneja los datos
-  const tareas = await TareaModel.getAll();          // Obtenemos todas las tareas
-  res.render('tareas', { tareas });                  // Renderizamos la vista
-});
+const empleadoRoutes = require('./routes/empleadoRoutes');
+app.use('/empleados', empleadoRoutes);
+
+const clienteRoutes = require('./routes/clienteRoutes');
+app.use('/clientes', clienteRoutes);
+
+const eventoRoutes = require('./routes/eventoRoutes');
+app.use('/eventos', eventoRoutes);
 
 // Manejo de rutas no encontradas 
 app.use((req, res) => {

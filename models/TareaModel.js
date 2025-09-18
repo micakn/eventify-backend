@@ -1,95 +1,89 @@
-const fs = require('fs'); // Para leer/escribir archivos
-const TAREAS_FILE = './db/tareas.json'; // Archivo de tareas
+const fs = require('fs').promises; // Promesas nativas
+const TAREAS_FILE = './db/tareas.json';
 
 class TareaModel {
   constructor() {
-    // Leemos tareas del JSON al crear la instancia
-    this.tareas = JSON.parse(fs.readFileSync(TAREAS_FILE, 'utf-8'));
   }
 
-  // Guardar cambios en JSON
-  _save() {
-    fs.writeFileSync(TAREAS_FILE, JSON.stringify(this.tareas, null, 2));
+  // -------------------- MÉTODOS AUXILIARES --------------------
+  async _load() {
+    try {
+      const data = await fs.readFile(TAREAS_FILE, 'utf-8');
+      return JSON.parse(data);
+    } catch (error) {
+      return []; // Si no existe el archivo o hay error, devolvemos arreglo vacío
+    }
+  }
+
+  async _save(tareas) {
+    try {
+      await fs.writeFile(TAREAS_FILE, JSON.stringify(tareas, null, 2));
+    } catch (error) {
+      throw new Error('Error al guardar tareas');
+    }
   }
 
   // -------------------- CRUD --------------------
-
-  // Devuelve todas las tareas
-  getAll() {
-    return this.tareas;
+  async getAll() {
+    return await this._load();
   }
 
-  // Devuelve una tarea por ID
-  getById(id) {
-    return this.tareas.find(t => String(t.id) === String(id));
+  async getById(id) {
+    const tareas = await this._load();
+    return tareas.find(t => String(t.id) === String(id));
   }
 
-  // Agrega una nueva tarea
-  add(tarea) {
+  async add(tarea) {
+    const tareas = await this._load();
     const nueva = {
-      id: Date.now(),                   // ID único
+      id: Date.now(),
       titulo: tarea.titulo || 'Sin título',
       descripcion: tarea.descripcion || '',
-      estado: tarea.estado || 'pendiente',          // pendiente | en proceso | finalizada
+      estado: tarea.estado || 'pendiente',
       fechaInicio: tarea.fechaInicio || null,
       fechaFin: tarea.fechaFin || null,
-      prioridad: tarea.prioridad || 'media',       // alta | media | baja
-      area: tarea.area || 'Producción y Logística', // Producción y Logística | Planificación y Finanzas
+      prioridad: tarea.prioridad || 'media',
+      area: tarea.area || 'Producción y Logística',
+      tipo: tarea.tipo || null,
       empleadoAsignado: tarea.empleadoAsignado || null,
       eventoAsignado: tarea.eventoAsignado || null,
       horasEstimadas: Number(tarea.horasEstimadas) || 0,
       horasReales: Number(tarea.horasReales) || 0
     };
-
-    this.tareas.push(nueva);
-    this._save();
+    tareas.push(nueva);
+    await this._save(tareas);
     return nueva;
   }
 
-  // Reemplaza completamente una tarea (PUT)
-  update(id, tarea) {
-    const index = this.tareas.findIndex(t => String(t.id) === String(id));
+  async update(id, tarea) {
+    const tareas = await this._load();
+    const index = tareas.findIndex(t => String(t.id) === String(id));
     if (index === -1) return null;
 
-    this.tareas[index] = {
-      id: this.tareas[index].id,
-      titulo: tarea.titulo || this.tareas[index].titulo,
-      descripcion: tarea.descripcion || this.tareas[index].descripcion,
-      estado: tarea.estado || this.tareas[index].estado,
-      fechaInicio: tarea.fechaInicio || this.tareas[index].fechaInicio,
-      fechaFin: tarea.fechaFin || this.tareas[index].fechaFin,
-      prioridad: tarea.prioridad || this.tareas[index].prioridad,
-      area: tarea.area || this.tareas[index].area,
-      empleadoAsignado: tarea.empleadoAsignado || this.tareas[index].empleadoAsignado,
-      eventoAsignado: tarea.eventoAsignado || this.tareas[index].eventoAsignado,
-      horasEstimadas: Number(tarea.horasEstimadas) || this.tareas[index].horasEstimadas,
-      horasReales: Number(tarea.horasReales) || this.tareas[index].horasReales
+    tareas[index] = {
+      ...tareas[index],
+      ...tarea,
+      id: tareas[index].id
     };
 
-    this._save();
-    return this.tareas[index];
+    await this._save(tareas);
+    return tareas[index];
   }
 
-  // Actualiza parcialmente una tarea (PATCH)
-  patch(id, campos) {
-    const index = this.tareas.findIndex(t => String(t.id) === String(id));
-    if (index === -1) return null;
-
-    this.tareas[index] = { ...this.tareas[index], ...campos };
-    this._save();
-    return this.tareas[index];
+  async patch(id, campos) {
+    return this.update(id, campos); 
   }
 
-  // Elimina una tarea por ID
-  remove(id) {
-    const index = this.tareas.findIndex(t => String(t.id) === String(id));
+  async remove(id) {
+    const tareas = await this._load();
+    const index = tareas.findIndex(t => String(t.id) === String(id));
     if (index === -1) return null;
 
-    const eliminado = this.tareas[index];
-    this.tareas.splice(index, 1);
-    this._save();
+    const eliminado = tareas.splice(index, 1)[0];
+    await this._save(tareas);
     return eliminado;
   }
 }
 
 module.exports = new TareaModel();
+

@@ -16,6 +16,7 @@ const listTareas = async (req, res) => {
     const tareas = await TareaModel.getAll();
     res.json(tareas);
   } catch (error) {
+    console.error(error);
     res.status(500).json({ mensaje: 'Error al obtener tareas' });
   }
 };
@@ -28,6 +29,7 @@ const getTarea = async (req, res) => {
     if (!tarea) return res.status(404).json({ mensaje: 'Tarea no encontrada' });
     res.json(tarea);
   } catch (error) {
+    console.error(error);
     res.status(500).json({ mensaje: 'Error al obtener tarea' });
   }
 };
@@ -39,13 +41,15 @@ const addTarea = async (req, res) => {
     const tarea = req.body;
 
     // Validamos que el empleado asignado exista
-    if (tarea.empleadoAsignado && !EmpleadoModel.getById(tarea.empleadoAsignado)) {
-      return res.status(400).json({ mensaje: 'Empleado asignado no existe' });
+    if (tarea.empleadoAsignado) {
+      const empleado = await EmpleadoModel.getById(tarea.empleadoAsignado);
+      if (!empleado) return res.status(400).json({ mensaje: 'Empleado asignado no existe' });
     }
 
     // Validamos que el evento asignado exista
-    if (tarea.eventoAsignado && !EventoModel.getById(tarea.eventoAsignado)) {
-      return res.status(400).json({ mensaje: 'Evento asignado no existe' });
+    if (tarea.eventoAsignado) {
+      const evento = await EventoModel.getById(tarea.eventoAsignado);
+      if (!evento) return res.status(400).json({ mensaje: 'Evento asignado no existe' });
     }
 
     // Validamos que el tipo de tarea sea permitido para el área
@@ -59,6 +63,7 @@ const addTarea = async (req, res) => {
     const nuevaTarea = await TareaModel.add(tarea);
     res.status(201).json({ mensaje: 'Tarea creada', tarea: nuevaTarea });
   } catch (error) {
+    console.error(error);
     res.status(500).json({ mensaje: 'Error al crear tarea' });
   }
 };
@@ -71,12 +76,16 @@ const updateTarea = async (req, res) => {
     const id = req.params.id;
 
     // Validaciones de relaciones y tipos
-    if (tarea.empleadoAsignado && !EmpleadoModel.getById(tarea.empleadoAsignado)) {
-      return res.status(400).json({ mensaje: 'Empleado asignado no existe' });
+    if (tarea.empleadoAsignado) {
+      const empleado = await EmpleadoModel.getById(tarea.empleadoAsignado);
+      if (!empleado) return res.status(400).json({ mensaje: 'Empleado asignado no existe' });
     }
-    if (tarea.eventoAsignado && !EventoModel.getById(tarea.eventoAsignado)) {
-      return res.status(400).json({ mensaje: 'Evento asignado no existe' });
+
+    if (tarea.eventoAsignado) {
+      const evento = await EventoModel.getById(tarea.eventoAsignado);
+      if (!evento) return res.status(400).json({ mensaje: 'Evento asignado no existe' });
     }
+
     if (tarea.area && tarea.tipo) {
       const tiposPermitidos = AREAS[tarea.area];
       if (!tiposPermitidos || !tiposPermitidos.includes(tarea.tipo)) {
@@ -89,6 +98,7 @@ const updateTarea = async (req, res) => {
 
     res.json({ mensaje: 'Tarea actualizada', tarea: actualizada });
   } catch (error) {
+    console.error(error);
     res.status(500).json({ mensaje: 'Error al actualizar tarea' });
   }
 };
@@ -101,12 +111,16 @@ const patchTarea = async (req, res) => {
     const id = req.params.id;
 
     // Validaciones de relaciones y tipos
-    if (campos.empleadoAsignado && !EmpleadoModel.getById(campos.empleadoAsignado)) {
-      return res.status(400).json({ mensaje: 'Empleado asignado no existe' });
+    if (campos.empleadoAsignado) {
+      const empleado = await EmpleadoModel.getById(campos.empleadoAsignado);
+      if (!empleado) return res.status(400).json({ mensaje: 'Empleado asignado no existe' });
     }
-    if (campos.eventoAsignado && !EventoModel.getById(campos.eventoAsignado)) {
-      return res.status(400).json({ mensaje: 'Evento asignado no existe' });
+
+    if (campos.eventoAsignado) {
+      const evento = await EventoModel.getById(campos.eventoAsignado);
+      if (!evento) return res.status(400).json({ mensaje: 'Evento asignado no existe' });
     }
+
     if (campos.area && campos.tipo) {
       const tiposPermitidos = AREAS[campos.area];
       if (!tiposPermitidos || !tiposPermitidos.includes(campos.tipo)) {
@@ -119,6 +133,7 @@ const patchTarea = async (req, res) => {
 
     res.json({ mensaje: 'Tarea actualizada parcialmente', tarea: actualizada });
   } catch (error) {
+    console.error(error);
     res.status(500).json({ mensaje: 'Error al actualizar tarea parcialmente' });
   }
 };
@@ -131,12 +146,12 @@ const deleteTarea = async (req, res) => {
     if (!eliminada) return res.status(404).json({ mensaje: 'Tarea no encontrada' });
     res.json({ mensaje: 'Tarea eliminada', tarea: eliminada });
   } catch (error) {
+    console.error(error);
     res.status(500).json({ mensaje: 'Error al eliminar tarea' });
   }
 };
 
 // -------------------- FILTRAR TAREAS --------------------
-// GET /tareas?estado=pendiente&prioridad=alta...
 const filterTareas = async (req, res) => {
   try {
     let tareas = await TareaModel.getAll();
@@ -148,15 +163,14 @@ const filterTareas = async (req, res) => {
     // Filtrar por prioridad
     if (prioridad) tareas = tareas.filter(t => t.prioridad === prioridad);
 
-    // Filtrar por fecha
+    // Filtrar por fecha (inicio o fin)
     if (tipoFecha && fecha) {
-      if (tipoFecha === 'creacion') {
-        const ts = new Date(fecha).getTime();
-        tareas = tareas.filter(t => t.id >= ts && t.id < ts + 24*60*60*1000);
-      } else if (tipoFecha === 'inicio') {
-        tareas = tareas.filter(t => t.fechaInicio === fecha);
+      const fechaFiltro = new Date(fecha).toISOString().split('T')[0]; // "YYYY-MM-DD"
+
+      if (tipoFecha === 'inicio') {
+        tareas = tareas.filter(t => t.fechaInicio === fechaFiltro);
       } else if (tipoFecha === 'fin') {
-        tareas = tareas.filter(t => t.fechaFin === fecha);
+        tareas = tareas.filter(t => t.fechaFin === fechaFiltro);
       }
     }
 
@@ -168,11 +182,13 @@ const filterTareas = async (req, res) => {
 
     res.json(tareas);
   } catch (error) {
+    console.error(error);
     res.status(500).json({ mensaje: 'Error al filtrar tareas' });
   }
 };
 
 module.exports = { listTareas, getTarea, addTarea, updateTarea, patchTarea, deleteTarea, filterTareas };
+
 
 
 

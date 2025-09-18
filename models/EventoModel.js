@@ -1,82 +1,91 @@
-const fs = require('fs'); // Importamos fs para manejar archivos
-const EVENTOS_FILE = './db/eventos.json'; // Archivo de eventos
+const fs = require('fs').promises; // Usamos promesas nativas
+const EVENTOS_FILE = './db/eventos.json';
 
 class EventoModel {
-  constructor() {
-    // Al crear la instancia, leemos todos los eventos del archivo JSON
-    this.eventos = JSON.parse(fs.readFileSync(EVENTOS_FILE, 'utf-8'));
+  constructor() {}
+
+  // -------------------- MÉTODOS AUXILIARES --------------------
+  // Leer eventos desde JSON de forma asíncrona
+  async _load() {
+    try {
+      const data = await fs.readFile(EVENTOS_FILE, 'utf-8');
+      return JSON.parse(data);
+    } catch (error) {
+      // Si no existe el archivo o hay error, devolvemos arreglo vacío
+      return [];
+    }
   }
 
-  // Guardar cambios en el archivo JSON
-  _save() {
-    fs.writeFileSync(EVENTOS_FILE, JSON.stringify(this.eventos, null, 2));
+  // Guardar eventos en JSON de forma asíncrona
+  async _save(eventos) {
+    try {
+      await fs.writeFile(EVENTOS_FILE, JSON.stringify(eventos, null, 2));
+    } catch (error) {
+      throw new Error('Error al guardar eventos');
+    }
   }
 
-  // Devuelve todos los eventos
-  getAll() {
-    return this.eventos;
+  // -------------------- CRUD --------------------
+  // Obtener todos los eventos
+  async getAll() {
+    return await this._load();
   }
 
-  // Devuelve un evento por ID
-  getById(id) {
-    return this.eventos.find(ev => String(ev.id) === String(id));
+  // Obtener un evento por ID
+  async getById(id) {
+    const eventos = await this._load();
+    return eventos.find(ev => String(ev.id) === String(id));
   }
 
-  // Agrega un nuevo evento
-  add(evento) {
+  // Agregar un nuevo evento
+  async add(evento) {
+    const eventos = await this._load();
     const nuevo = {
-      id: Date.now(),                  // ID único basado en timestamp
+      id: Date.now(),                // ID único
       nombre: evento.nombre || 'Sin nombre',
       descripcion: evento.descripcion || '',
       fechaInicio: evento.fechaInicio || null,
       fechaFin: evento.fechaFin || null,
       lugar: evento.lugar || ''
     };
-    this.eventos.push(nuevo); // Agregamos al array
-    this._save();             // Guardamos cambios
-    return nuevo;             // Devolvemos el evento creado
+    eventos.push(nuevo);
+    await this._save(eventos);
+    return nuevo;
   }
 
-  // Reemplaza completamente un evento (PUT)
-  update(id, evento) {
-    const index = this.eventos.findIndex(ev => String(ev.id) === String(id));
+  // Reemplazar completamente un evento (PUT)
+  async update(id, evento) {
+    const eventos = await this._load();
+    const index = eventos.findIndex(ev => String(ev.id) === String(id));
     if (index === -1) return null;
 
-    this.eventos[index] = {
-      id: this.eventos[index].id,
-      nombre: evento.nombre || this.eventos[index].nombre,
-      descripcion: evento.descripcion || this.eventos[index].descripcion,
-      fechaInicio: evento.fechaInicio || this.eventos[index].fechaInicio,
-      fechaFin: evento.fechaFin || this.eventos[index].fechaFin,
-      lugar: evento.lugar || this.eventos[index].lugar
+    eventos[index] = {
+      ...eventos[index],
+      ...evento,
+      id: eventos[index].id // Mantenemos el ID original
     };
 
-    this._save(); // Guardamos cambios
-    return this.eventos[index]; // Devolvemos el evento actualizado
+    await this._save(eventos);
+    return eventos[index];
   }
 
-  // Actualiza parcialmente un evento (PATCH)
-  patch(id, campos) {
-    const index = this.eventos.findIndex(ev => String(ev.id) === String(id));
-    if (index === -1) return null;
-
-    this.eventos[index] = { ...this.eventos[index], ...campos };
-    this._save();
-    return this.eventos[index];
+  // Actualizar parcialmente un evento (PATCH)
+  async patch(id, campos) {
+    return this.update(id, campos);
   }
 
-  // Elimina un evento por ID
-  remove(id) {
-    const index = this.eventos.findIndex(ev => String(ev.id) === String(id));
+  // Eliminar un evento
+  async remove(id) {
+    const eventos = await this._load();
+    const index = eventos.findIndex(ev => String(ev.id) === String(id));
     if (index === -1) return null;
 
-    const eliminado = this.eventos[index]; // Guardamos el evento eliminado
-    this.eventos.splice(index, 1);         // Lo removemos del array
-    this._save();                           // Guardamos cambios
-    return eliminado;                       // Devolvemos el evento eliminado
+    const eliminado = eventos.splice(index, 1)[0];
+    await this._save(eventos);
+    return eliminado;
   }
 }
 
-
 module.exports = new EventoModel();
+
 

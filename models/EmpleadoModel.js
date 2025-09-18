@@ -1,79 +1,92 @@
-const fs = require('fs');
+const fs = require('fs').promises; // Usamos promesas nativas
 const EMPLEADOS_FILE = './db/empleados.json';
 
 class EmpleadoModel {
-  constructor() {
-    this.empleados = JSON.parse(fs.readFileSync(EMPLEADOS_FILE, 'utf-8'));
+  constructor() {}
+
+  // -------------------- MÉTODOS AUXILIARES --------------------
+  // Leer empleados desde JSON de forma asíncrona
+  async _load() {
+    try {
+      const data = await fs.readFile(EMPLEADOS_FILE, 'utf-8');
+      return JSON.parse(data);
+    } catch (error) {
+      // Si no existe el archivo o hay error, devolvemos arreglo vacío
+      return [];
+    }
   }
 
-  _save() {
-    fs.writeFileSync(EMPLEADOS_FILE, JSON.stringify(this.empleados, null, 2));
+  // Guardar empleados en JSON de forma asíncrona
+  async _save(empleados) {
+    try {
+      await fs.writeFile(EMPLEADOS_FILE, JSON.stringify(empleados, null, 2));
+    } catch (error) {
+      throw new Error('Error al guardar empleados');
+    }
   }
 
-  // Devuelve todos los empleados
-  getAll() {
-    return this.empleados;
+  // -------------------- CRUD --------------------
+  // Obtener todos los empleados
+  async getAll() {
+    return await this._load();
   }
 
-  // Devuelve un empleado por ID
-  getById(id) {
-    return this.empleados.find(e => String(e.id) === String(id));
+  // Obtener un empleado por ID
+  async getById(id) {
+    const empleados = await this._load();
+    return empleados.find(e => String(e.id) === String(id));
   }
 
-  // Agrega un nuevo empleado
-  add(empleado) {
+  // Agregar un nuevo empleado
+  async add(empleado) {
+    const empleados = await this._load();
     const nuevo = {
       id: Date.now(),
       nombre: empleado.nombre || 'Sin nombre',
-      rol: empleado.rol || 'planner',         // Valor por defecto planner
-      area: empleado.area || 'Producción y Logística', // Valor por defecto
+      rol: empleado.rol || 'planner',                   // Valor por defecto planner
+      area: empleado.area || 'Producción y Logística',   // Valor por defecto
       email: empleado.email || '',
       telefono: empleado.telefono || ''
     };
-    this.empleados.push(nuevo);
-    this._save();
+    empleados.push(nuevo);
+    await this._save(empleados);
     return nuevo;
   }
 
-  // Reemplaza completamente un empleado (PUT)
-  update(id, empleado) {
-    const index = this.empleados.findIndex(e => String(e.id) === String(id));
+  // Reemplazar completamente un empleado (PUT)
+  async update(id, empleado) {
+    const empleados = await this._load();
+    const index = empleados.findIndex(e => String(e.id) === String(id));
     if (index === -1) return null;
 
-    this.empleados[index] = {
-      id: this.empleados[index].id,
-      nombre: empleado.nombre || this.empleados[index].nombre,
-      rol: empleado.rol || this.empleados[index].rol,
-      area: empleado.area || this.empleados[index].area,
-      email: empleado.email || this.empleados[index].email,
-      telefono: empleado.telefono || this.empleados[index].telefono
+    empleados[index] = {
+      ...empleados[index],
+      ...empleado,
+      id: empleados[index].id // Mantener ID original
     };
-    this._save();
-    return this.empleados[index];
+
+    await this._save(empleados);
+    return empleados[index];
   }
 
-  // Actualiza parcialmente un empleado (PATCH)
-  patch(id, campos) {
-    const index = this.empleados.findIndex(e => String(e.id) === String(id));
-    if (index === -1) return null;
-
-    this.empleados[index] = { ...this.empleados[index], ...campos };
-    this._save();
-    return this.empleados[index];
+  // Actualizar parcialmente un empleado (PATCH)
+  async patch(id, campos) {
+    return this.update(id, campos);
   }
 
-  // Elimina un empleado
-  remove(id) {
-    const index = this.empleados.findIndex(e => String(e.id) === String(id));
+  // Eliminar un empleado
+  async remove(id) {
+    const empleados = await this._load();
+    const index = empleados.findIndex(e => String(e.id) === String(id));
     if (index === -1) return null;
 
-    const eliminado = this.empleados[index];
-    this.empleados.splice(index, 1);
-    this._save();
+    const eliminado = empleados.splice(index, 1)[0];
+    await this._save(empleados);
     return eliminado;
   }
 }
 
 module.exports = new EmpleadoModel();
+
 
 

@@ -1,78 +1,89 @@
-const fs = require('fs'); // Importamos fs para manejar archivos
-const CLIENTES_FILE = './db/clientes.json'; // Archivo de clientes
+const fs = require('fs').promises; // Usamos promesas nativas
+const CLIENTES_FILE = './db/clientes.json';
 
 class ClienteModel {
-  constructor() {
-    // Al crear la instancia, leemos todos los clientes del archivo JSON
-    this.clientes = JSON.parse(fs.readFileSync(CLIENTES_FILE, 'utf-8'));
+  constructor() {}
+
+  // -------------------- MÉTODOS AUXILIARES --------------------
+  // Leer clientes desde JSON de forma asíncrona
+  async _load() {
+    try {
+      const data = await fs.readFile(CLIENTES_FILE, 'utf-8');
+      return JSON.parse(data);
+    } catch (error) {
+      // Si no existe el archivo o hay error, devolvemos arreglo vacío
+      return [];
+    }
   }
 
-  // Guardar cambios en el archivo JSON
-  _save() {
-    fs.writeFileSync(CLIENTES_FILE, JSON.stringify(this.clientes, null, 2));
+  // Guardar clientes en JSON de forma asíncrona
+  async _save(clientes) {
+    try {
+      await fs.writeFile(CLIENTES_FILE, JSON.stringify(clientes, null, 2));
+    } catch (error) {
+      throw new Error('Error al guardar clientes');
+    }
   }
 
-  // Devuelve todos los clientes
-  getAll() {
-    return this.clientes;
+  // -------------------- CRUD --------------------
+  // Obtener todos los clientes
+  async getAll() {
+    return await this._load();
   }
 
-  // Devuelve un cliente por ID
-  getById(id) {
-    return this.clientes.find(c => String(c.id) === String(id));
+  // Obtener un cliente por ID
+  async getById(id) {
+    const clientes = await this._load();
+    return clientes.find(c => String(c.id) === String(id));
   }
 
-  // Agrega un nuevo cliente
-  add(cliente) {
+  // Agregar un nuevo cliente
+  async add(cliente) {
+    const clientes = await this._load();
     const nuevo = {
-      id: Date.now(),                  // ID único basado en timestamp
+      id: Date.now(),
       nombre: cliente.nombre || 'Sin nombre',
       email: cliente.email || '',
       telefono: cliente.telefono || '',
       empresa: cliente.empresa || ''
     };
-    this.clientes.push(nuevo); // Agregamos al array
-    this._save();              // Guardamos cambios
-    return nuevo;              // Devolvemos el cliente creado
+    clientes.push(nuevo);
+    await this._save(clientes);
+    return nuevo;
   }
 
-  // Reemplaza completamente un cliente (PUT)
-  update(id, cliente) {
-    const index = this.clientes.findIndex(c => String(c.id) === String(id));
+  // Reemplazar completamente un cliente (PUT)
+  async update(id, cliente) {
+    const clientes = await this._load();
+    const index = clientes.findIndex(c => String(c.id) === String(id));
     if (index === -1) return null;
 
-    this.clientes[index] = {
-      id: this.clientes[index].id,
-      nombre: cliente.nombre || this.clientes[index].nombre,
-      email: cliente.email || this.clientes[index].email,
-      telefono: cliente.telefono || this.clientes[index].telefono,
-      empresa: cliente.empresa || this.clientes[index].empresa
+    clientes[index] = {
+      ...clientes[index],
+      ...cliente,
+      id: clientes[index].id // Mantener ID original
     };
 
-    this._save(); // Guardamos cambios
-    return this.clientes[index]; // Devolvemos el cliente actualizado
+    await this._save(clientes);
+    return clientes[index];
   }
 
-  // Actualiza parcialmente un cliente (PATCH)
-  patch(id, campos) {
-    const index = this.clientes.findIndex(c => String(c.id) === String(id));
-    if (index === -1) return null;
-
-    this.clientes[index] = { ...this.clientes[index], ...campos };
-    this._save();
-    return this.clientes[index];
+  // Actualizar parcialmente un cliente (PATCH)
+  async patch(id, campos) {
+    return this.update(id, campos);
   }
 
-  // Elimina un cliente por ID
-  remove(id) {
-    const index = this.clientes.findIndex(c => String(c.id) === String(id));
+  // Eliminar un cliente
+  async remove(id) {
+    const clientes = await this._load();
+    const index = clientes.findIndex(c => String(c.id) === String(id));
     if (index === -1) return null;
 
-    const eliminado = this.clientes[index]; // Guardamos el cliente eliminado
-    this.clientes.splice(index, 1);         // Lo removemos del array
-    this._save();                           // Guardamos cambios
-    return eliminado;                       // Devolvemos el cliente eliminado
+    const eliminado = clientes.splice(index, 1)[0];
+    await this._save(clientes);
+    return eliminado;
   }
 }
 
 module.exports = new ClienteModel();
+

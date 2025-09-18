@@ -1,6 +1,6 @@
 [
   {
-    "id": 1694770005000,
+    "id": 1,
     "nombre": "Empresa Tech",
     "empresa": "Empresa Tech",
     "email": "contacto@acme.com",
@@ -8,7 +8,7 @@
     "tipo": "empresa"
   },
   {
-    "id": 1694770005001,
+    "id": 2,
     "nombre": "Startup Innovadora",
     "empresa": "Startup Innovadora",
     "email": "info@startup.com",

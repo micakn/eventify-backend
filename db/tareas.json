@@ -1,6 +1,6 @@
 [
   {
-    "id": 1694770004000,
+    "id": 1,
     "titulo": "Montaje de escenario",
     "descripcion": "Montar estructura y sonido",
     "estado": "pendiente",
@@ -9,13 +9,13 @@
     "prioridad": "alta",
     "area": "Producción y Logística",
     "tipo": "Montaje de escenario",
-    "empleadoAsignado": 1694770001002,
-    "eventoAsignado": 1694770003000,
+    "empleadoAsignado": 3,
+    "eventoAsignado": 1,
     "horasEstimadas": 8,
     "horasReales": 0
   },
   {
-    "id": 1694770004001,
+    "id": 2,
     "titulo": "Coordinación con proveedores",
     "descripcion": "Contactar catering y sonido",
     "estado": "pendiente",
@@ -24,13 +24,13 @@
     "prioridad": "media",
     "area": "Producción y Logística",
     "tipo": "Coordinación con proveedores",
-    "empleadoAsignado": 1694770001002,
-    "eventoAsignado": 1694770003001,
+    "empleadoAsignado": 3,
+    "eventoAsignado": 2,
     "horasEstimadas": 5,
     "horasReales": 0
   },
   {
-    "id": 1694770004002,
+    "id": 3,
     "titulo": "Carga y control del presupuesto",
     "descripcion": "Controlar presupuesto del evento",
     "estado": "pendiente",
@@ -39,8 +39,8 @@
     "prioridad": "alta",
     "area": "Planificación y Finanzas",
     "tipo": "Carga y control del presupuesto",
-    "empleadoAsignado": 1694770001000,
-    "eventoAsignado": 1694770003000,
+    "empleadoAsignado": 1,
+    "eventoAsignado": 1,
     "horasEstimadas": 6,
     "horasReales": 0
   }

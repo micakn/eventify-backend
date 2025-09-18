@@ -1,6 +1,6 @@
 [
   {
-    "id": 1694770001000,
+    "id": 1,
     "nombre": "Laura Perez",
     "rol": "planner",
     "area": "Planificación y Finanzas",
@@ -8,7 +8,7 @@
     "telefono": "+541122223334"
   },
   {
-    "id": 1694770001001,
+    "id": 2,
     "nombre": "Alex Lopez",
     "rol": "administrador",
     "area": "Administración",
@@ -16,7 +16,7 @@
     "telefono": "+541122223335"
   },
   {
-    "id": 1694770001002,
+    "id": 3,
     "nombre": "Juan Gonzales",
     "rol": "coordinador",
     "area": "Producción y Logística",

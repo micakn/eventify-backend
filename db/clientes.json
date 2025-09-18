@@ -1,11 +1,18 @@
 [
   {
-    "id": 100,
+    "id": 1694770005000,
     "nombre": "Empresa Tech",
-    "tipo": "empresa",
-    "contacto": {
-      "email": "contacto@acme.com",
-      "telefono": "+541122223333"
-    }
+    "empresa": "Empresa Tech",
+    "email": "contacto@acme.com",
+    "telefono": "+541122223333",
+    "tipo": "empresa"
+  },
+  {
+    "id": 1694770005001,
+    "nombre": "Startup Innovadora",
+    "empresa": "Startup Innovadora",
+    "email": "info@startup.com",
+    "telefono": "+541122223337",
+    "tipo": "empresa"
   }
 ]

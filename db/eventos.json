@@ -1,9 +1,20 @@
 [
   {
-    "id": 1,
+    "id": 1694770003000,
     "nombre": "Conferencia Tech",
+    "descripcion": "Evento anual de tecnología",
+    "fechaInicio": "2025-10-10",
+    "fechaFin": "2025-10-11",
     "lugar": "Centro X",
-    "fecha": "2025-10-10",
     "presupuesto": 500000
+  },
+  {
+    "id": 1694770003001,
+    "nombre": "Feria de Startups",
+    "descripcion": "Feria de innovación y emprendimiento",
+    "fechaInicio": "2025-11-05",
+    "fechaFin": "2025-11-06",
+    "lugar": "Expo Center",
+    "presupuesto": 300000
   }
 ]

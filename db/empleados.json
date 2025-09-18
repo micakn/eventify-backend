@@ -3,18 +3,24 @@
     "id": 1694770001000,
     "nombre": "Laura Perez",
     "rol": "planner",
-    "area": "Planificacion y Finanzas"
+    "area": "Planificación y Finanzas",
+    "email": "laura@example.com",
+    "telefono": "+541122223334"
   },
   {
     "id": 1694770001001,
     "nombre": "Alex Lopez",
     "rol": "administrador",
-    "area": "Administracion"
+    "area": "Administración",
+    "email": "alex@example.com",
+    "telefono": "+541122223335"
   },
   {
     "id": 1694770001002,
     "nombre": "Juan Gonzales",
     "rol": "coordinador",
-    "area": "Produccion y Logistica"
+    "area": "Producción y Logística",
+    "email": "juan@example.com",
+    "telefono": "+541122223336"
   }
 ]

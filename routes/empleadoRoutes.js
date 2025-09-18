@@ -1,13 +1,14 @@
 const express = require('express');
 const router = express.Router();
-const empleadoController = require('../controllers/EmpleadoController');
+const empleadoController = require('../controllers/empleadoController');
 
-router.get('/', empleadoController.list);// LISTAR todos los empleados (para asignar tareas)
-router.get('/:id', empleadoController.getOne);// OBTENER empleado por ID
-router.post('/', empleadoController.create);// CREAR un nuevo empleado
-router.put('/:id', empleadoController.update);// REEMPLAZAR un empleado completo
-router.patch('/:id', empleadoController.patch);// ACTUALIZAR parcialmente un empleado
-router.delete('/:id', empleadoController.remove);// ELIMINAR un empleado
+router.get('/', empleadoController.listEmpleados);        // LISTAR todos los empleados
+router.get('/:id', empleadoController.getEmpleado);       // OBTENER empleado por ID
+router.post('/', empleadoController.addEmpleado);         // CREAR un nuevo empleado
+router.put('/:id', empleadoController.updateEmpleado);    // REEMPLAZAR un empleado completo
+router.patch('/:id', empleadoController.patchEmpleado);   // ACTUALIZAR parcialmente un empleado
+router.delete('/:id', empleadoController.deleteEmpleado);// ELIMINAR un empleado
 
 module.exports = router;
+
 

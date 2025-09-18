@@ -77,6 +77,6 @@ class EventoModel {
   }
 }
 
-// Exportamos una instancia de la clase para usarla directamente
+
 module.exports = new EventoModel();
 

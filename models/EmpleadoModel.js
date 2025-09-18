@@ -1,16 +1,13 @@
-const fs = require('fs'); // Importamos el módulo fs para leer y escribir archivos
-const EMPLEADOS_FILE = './db/empleados.json'; // Archivo de empleados
+const fs = require('fs');
+const EMPLEADOS_FILE = './db/empleados.json';
 
 class EmpleadoModel {
   constructor() {
-    // Al crear la instancia, leemos todos los empleados del archivo JSON
     this.empleados = JSON.parse(fs.readFileSync(EMPLEADOS_FILE, 'utf-8'));
   }
 
-  // Método interno para guardar cambios en el archivo JSON
   _save() {
     fs.writeFileSync(EMPLEADOS_FILE, JSON.stringify(this.empleados, null, 2));
-    // null, 2 -> para que el JSON quede formateado bonito (indentación 2 espacios)
   }
 
   // Devuelve todos los empleados
@@ -26,15 +23,16 @@ class EmpleadoModel {
   // Agrega un nuevo empleado
   add(empleado) {
     const nuevo = {
-      id: Date.now(),                  // ID único basado en timestamp
+      id: Date.now(),
       nombre: empleado.nombre || 'Sin nombre',
-      puesto: empleado.puesto || '',
+      rol: empleado.rol || 'planner',         // Valor por defecto planner
+      area: empleado.area || 'Producción y Logística', // Valor por defecto
       email: empleado.email || '',
       telefono: empleado.telefono || ''
     };
-    this.empleados.push(nuevo); // Agregamos al array
-    this._save();               // Guardamos cambios
-    return nuevo;               // Devolvemos el empleado creado
+    this.empleados.push(nuevo);
+    this._save();
+    return nuevo;
   }
 
   // Reemplaza completamente un empleado (PUT)
@@ -43,15 +41,15 @@ class EmpleadoModel {
     if (index === -1) return null;
 
     this.empleados[index] = {
-      id: this.empleados[index].id,                     // conservamos el ID
+      id: this.empleados[index].id,
       nombre: empleado.nombre || this.empleados[index].nombre,
-      puesto: empleado.puesto || this.empleados[index].puesto,
+      rol: empleado.rol || this.empleados[index].rol,
+      area: empleado.area || this.empleados[index].area,
       email: empleado.email || this.empleados[index].email,
       telefono: empleado.telefono || this.empleados[index].telefono
     };
-
-    this._save(); // Guardamos cambios
-    return this.empleados[index]; // Devolvemos el empleado actualizado
+    this._save();
+    return this.empleados[index];
   }
 
   // Actualiza parcialmente un empleado (PATCH)
@@ -64,18 +62,18 @@ class EmpleadoModel {
     return this.empleados[index];
   }
 
-  // Elimina un empleado por ID
+  // Elimina un empleado
   remove(id) {
     const index = this.empleados.findIndex(e => String(e.id) === String(id));
     if (index === -1) return null;
 
-    const eliminado = this.empleados[index]; // Guardamos el empleado eliminado
-    this.empleados.splice(index, 1);         // Lo removemos del array
-    this._save();                            // Guardamos cambios
-    return eliminado;                        // Devolvemos el empleado eliminado
+    const eliminado = this.empleados[index];
+    this.empleados.splice(index, 1);
+    this._save();
+    return eliminado;
   }
 }
 
-// Exportamos una instancia de la clase para usarla directamente
 module.exports = new EmpleadoModel();
+
 

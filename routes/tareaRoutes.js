@@ -8,5 +8,6 @@ router.post('/', tareaController.create);// CREAR nueva tarea
 router.put('/:id', tareaController.put);// REMPLAZAR tarea completa
 router.patch('/:id', tareaController.patch);// ACTUALIZAR parcial de tarea
 router.delete('/:id', tareaController.remove);// ELIMINAR tarea
+router.get('/filtro', tareaController.filterTareas);// RUTA PARA FILTRAR TAREAS
 
 module.exports = router;

@@ -3,16 +3,15 @@ const TareaModel = require('../models/tareaModel');
 const EmpleadoModel = require('../models/empleadoModel');
 const EventoModel = require('../models/eventoModel');
 
-
-  // -------------------- LISTAR TODAS LAS TAREAS --------------------
-  // GET /tareas
- const listTareas = (req, res) => {
+// -------------------- LISTAR TODAS LAS TAREAS --------------------
+// GET /tareas
+const listTareas = (req, res) => {
   const tareas = TareaModel.getAll();
   res.json(tareas);
 };
 
-  // -------------------- OBTENER UNA TAREA POR ID --------------------
-  // GET /tareas/:id
+// -------------------- OBTENER UNA TAREA POR ID --------------------
+// GET /tareas/:id
 const getTarea = (req, res) => {
   const { id } = req.params;
   const tarea = TareaModel.getById(id);
@@ -22,9 +21,9 @@ const getTarea = (req, res) => {
   res.json(tarea);
 };
 
-  // -------------------- CREAR UNA NUEVA TAREA --------------------
-  // POST /tareas
-  const addTarea = (req, res) => {
+// -------------------- CREAR UNA NUEVA TAREA --------------------
+// POST /tareas
+const addTarea = (req, res) => {
   const tarea = req.body;
 
   // Validar que el empleado asignado exista
@@ -41,9 +40,9 @@ const getTarea = (req, res) => {
   res.status(201).json({ mensaje: 'Tarea creada', tarea: nuevaTarea });
 };
 
-  // -------------------- REEMPLAZAR UNA TAREA COMPLETA --------------------
-  // PUT /tareas/:id
-  const updateTarea = (req, res) => {
+// -------------------- REEMPLAZAR UNA TAREA COMPLETA --------------------
+// PUT /tareas/:id
+const updateTarea = (req, res) => {
   const { id } = req.params;
   const tarea = req.body;
 
@@ -61,10 +60,9 @@ const getTarea = (req, res) => {
   res.json({ mensaje: 'Tarea actualizada (PUT)', tarea: actualizada });
 };
 
-
-  // -------------------- ACTUALIZAR PARCIALMENTE UNA TAREA --------------------
-  // PATCH /tareas/:id
-  const patchTarea = (req, res) => {
+// -------------------- ACTUALIZAR PARCIALMENTE UNA TAREA --------------------
+// PATCH /tareas/:id
+const patchTarea = (req, res) => {
   const { id } = req.params;
   const campos = req.body;
 
@@ -82,9 +80,9 @@ const getTarea = (req, res) => {
   res.json({ mensaje: 'Tarea actualizada (PATCH)', tarea: actualizada });
 };
 
-  // -------------------- ELIMINAR UNA TAREA --------------------
-  // DELETE /tareas/:id
-  const deleteTarea = (req, res) => {
+// -------------------- ELIMINAR UNA TAREA --------------------
+// DELETE /tareas/:id
+const deleteTarea = (req, res) => {
   const { id } = req.params;
   const eliminada = TareaModel.remove(id);
 
@@ -93,6 +91,40 @@ const getTarea = (req, res) => {
   res.json({ mensaje: 'Tarea eliminada', tarea: eliminada });
 };
 
+// -------------------- FILTRAR TAREAS --------------------
+const filterTareas = (req, res) => {
+  let tareas = TareaModel.getAll();
+  const { estado, prioridad, tipoFecha, fecha, empleado, evento } = req.query;
+
+  // Filtrar por estado
+  if (estado) tareas = tareas.filter(t => t.estado === estado);
+
+  // Filtrar por prioridad
+  if (prioridad) tareas = tareas.filter(t => t.prioridad === prioridad);
+
+  // Filtrar por fecha
+  if (tipoFecha && fecha) {
+    if (tipoFecha === 'creacion') {
+      const ts = new Date(fecha).getTime();
+      tareas = tareas.filter(t => t.id >= ts && t.id < ts + 24*60*60*1000);
+    } else if (tipoFecha === 'inicio') {
+      tareas = tareas.filter(t => t.fechaInicio === fecha);
+    } else if (tipoFecha === 'fin') {
+      tareas = tareas.filter(t => t.fechaFin === fecha);
+    }
+  }
+
+  // Filtrar por empleado asignado
+  if (empleado) tareas = tareas.filter(t => String(t.empleadoAsignado) === String(empleado));
+
+  // Filtrar por evento/cliente asignado
+  if (evento) tareas = tareas.filter(t => String(t.eventoAsignado) === String(evento));
+
+  res.json(tareas);
+};
+
 
 // Exportamos todas las funciones para usar en las rutas
-module.exports = {listTareas, getTarea, addTarea, updateTarea, patchTarea, deleteTarea};
+module.exports = { listTareas, getTarea, addTarea, updateTarea, patchTarea, deleteTarea, filterTareas };
+
+

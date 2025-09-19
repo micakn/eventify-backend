@@ -14,5 +14,21 @@
     "email": "info@startup.com",
     "telefono": "+541122223337",
     "tipo": "empresa"
+  },
+  {
+    "id": 1758301088712,
+    "nombre": "Carlos Gardel",
+    "email": "gardel@yahoo.com",
+    "telefono": "3669876665",
+    "empresa": "El Musicologo",
+    "tipo": "individual"
+  },
+  {
+    "id": 1758301970176,
+    "nombre": "Alejandra",
+    "email": "ale@gmail.com",
+    "telefono": "3874563633",
+    "empresa": "",
+    "tipo": "individual"
   }
 ]

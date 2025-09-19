@@ -1,41 +1,70 @@
-const express = require('express');// Importamos el módulo Express
-const app = express(); // Inicializamos la app de Express
-const PORT = 3000;// Definimos el puerto en el que se ejecutará el servidor
+const express = require('express');
+const app = express();
+const PORT = 3000;
 
 // -------------------- Middleware --------------------
-app.use(express.json()); // Permite recibir datos JSON en req.body
+app.use(express.json());
 app.use(express.urlencoded({ extended: true })); // Para recibir datos de formularios
 
 // -------------------- Motor de vistas --------------------
-app.set("view engine", "pug"); // Usamos Pug
-app.set("views", "./views");  // Carpeta de vistas
+app.set("view engine", "pug");
+app.set("views", "./views");
 
-// -------------------- Rutas --------------------
+// -------------------- Archivos estáticos --------------------
+app.use(express.static('public'));
 
-// Ruta principal 
-app.get('/', (req, res) => {
-  res.render('index', { title: 'Eventify - Backend' });
+// -------------------- Middleware para variables globales --------------------
+app.use((req, res, next) => {
+  res.locals.currentPath = req.path;
+  next();
 });
 
-// Routers de cada módulo
-const tareaRoutes = require('./routes/tareaRoutes');
-app.use('/tareas', tareaRoutes);
+// -------------------- Rutas Web (Vistas) --------------------
+const clienteWebRoutes = require('./routes/clienteWebRoutes');
+app.use('/clientes', clienteWebRoutes);
 
-const empleadoRoutes = require('./routes/empleadoRoutes');
-app.use('/empleados', empleadoRoutes);
-
+// -------------------- Rutas API (JSON) --------------------
+// Mantenemos las rutas API originales bajo /api
 const clienteRoutes = require('./routes/clienteRoutes');
-app.use('/clientes', clienteRoutes);
+app.use('/api/clientes', clienteRoutes);
 
-const eventoRoutes = require('./routes/eventoRoutes');
-app.use('/eventos', eventoRoutes);
+// -------------------- Ruta principal --------------------
+app.get('/', (req, res) => {
+  res.render('index', { 
+    title: 'Eventify - Sistema de Gestión',
+    currentPath: '/'
+  });
+});
 
-// Manejo de rutas no encontradas 
+// -------------------- Manejo de errores --------------------
+// Vista de error
+app.use('/error', (req, res) => {
+  res.render('error', {
+    title: 'Error - Eventify',
+    message: req.query.message || 'Error desconocido'
+  });
+});
+
+// Manejo de errores 404
 app.use((req, res) => {
-  res.status(404).send('Ruta no encontrada');
+  res.status(404).render('error', {
+    title: '404 - No encontrado',
+    message: 'La página que buscas no existe'
+  });
+});
+
+// Manejo de errores generales
+app.use((error, req, res, next) => {
+  console.error('Error:', error);
+  res.status(500).render('error', {
+    title: 'Error - Eventify',
+    message: 'Error interno del servidor'
+  });
 });
 
 // -------------------- Iniciar servidor --------------------
 app.listen(PORT, () => {
   console.log(`Servidor corriendo en http://localhost:${PORT}`);
+  console.log(`- Vista web: http://localhost:${PORT}/clientes`);
+  console.log(`- API JSON: http://localhost:${PORT}/api/clientes`);
 });

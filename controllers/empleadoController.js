@@ -1,4 +1,4 @@
-import EmpleadoModel from '../models/empleadoModel.js';
+import EmpleadoModel from '../models/EmpleadoModel.js';
 
 // -------------------- LISTAR TODOS LOS EMPLEADOS --------------------
 // GET /empleados

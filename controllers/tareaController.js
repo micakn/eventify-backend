@@ -1,6 +1,6 @@
 import TareaModel from '../models/TareaModel.js';
-import EmpleadoModel from '../models/empleadoModel.js';
-import EventoModel from '../models/eventoModel.js';
+import EmpleadoModel from '../models/EmpleadoModel.js';
+import EventoModel from '../models/EventoModel.js';
 
 // -------------------- ÁREAS Y TIPOS DE TAREAS --------------------
 // Definimos las áreas y los tipos de tareas permitidos para cada una

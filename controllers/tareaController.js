@@ -1,9 +1,9 @@
-// Importamos los modelos necesarios
-const TareaModel = require('../models/TareaModel');
-const EmpleadoModel = require('../models/empleadoModel');
-const EventoModel = require('../models/eventoModel');
+import TareaModel from '../models/TareaModel.js';
+import EmpleadoModel from '../models/empleadoModel.js';
+import EventoModel from '../models/eventoModel.js';
 
 // -------------------- ÁREAS Y TIPOS DE TAREAS --------------------
+// Definimos las áreas y los tipos de tareas permitidos para cada una
 const AREAS = {
   "Producción y Logística": ["Coordinación con proveedores", "Montaje de escenario", "Verificación técnica previa"],
   "Planificación y Finanzas": ["Carga y control del presupuesto", "Firma de contratos", "Seguimiento del cronograma"]
@@ -11,7 +11,8 @@ const AREAS = {
 
 // -------------------- LISTAR TODAS LAS TAREAS --------------------
 // GET /tareas
-const listTareas = async (req, res) => {
+// Devuelve todas las tareas almacenadas
+async function listTareas(req, res) {
   try {
     const tareas = await TareaModel.getAll();
     res.json(tareas);
@@ -19,11 +20,12 @@ const listTareas = async (req, res) => {
     console.error(error);
     res.status(500).json({ mensaje: 'Error al obtener tareas' });
   }
-};
+}
 
 // -------------------- OBTENER UNA TAREA POR ID --------------------
 // GET /tareas/:id
-const getTarea = async (req, res) => {
+// Busca y devuelve una tarea según su ID
+async function getTarea(req, res) {
   try {
     const tarea = await TareaModel.getById(req.params.id);
     if (!tarea) return res.status(404).json({ mensaje: 'Tarea no encontrada' });
@@ -32,27 +34,28 @@ const getTarea = async (req, res) => {
     console.error(error);
     res.status(500).json({ mensaje: 'Error al obtener tarea' });
   }
-};
+}
 
-// -------------------- CREAR UNA NUEVA TAREA --------------------
+// -------------------- CREAR NUEVA TAREA --------------------
 // POST /tareas
-const addTarea = async (req, res) => {
+// Crea una tarea nueva validando relaciones y tipo
+async function addTarea(req, res) {
   try {
     const tarea = req.body;
 
-    // Validamos que el empleado asignado exista
+    // Verificamos si el empleado asignado existe
     if (tarea.empleadoAsignado) {
       const empleado = await EmpleadoModel.getById(tarea.empleadoAsignado);
       if (!empleado) return res.status(400).json({ mensaje: 'Empleado asignado no existe' });
     }
 
-    // Validamos que el evento asignado exista
+    // Verificamos si el evento asignado existe
     if (tarea.eventoAsignado) {
       const evento = await EventoModel.getById(tarea.eventoAsignado);
       if (!evento) return res.status(400).json({ mensaje: 'Evento asignado no existe' });
     }
 
-    // Validamos que el tipo de tarea sea permitido para el área
+    // Verificamos que el tipo de tarea corresponda al área indicada
     if (tarea.area && tarea.tipo) {
       const tiposPermitidos = AREAS[tarea.area];
       if (!tiposPermitidos || !tiposPermitidos.includes(tarea.tipo)) {
@@ -60,32 +63,34 @@ const addTarea = async (req, res) => {
       }
     }
 
+    // Creamos la tarea
     const nuevaTarea = await TareaModel.add(tarea);
     res.status(201).json({ mensaje: 'Tarea creada', tarea: nuevaTarea });
   } catch (error) {
     console.error(error);
     res.status(500).json({ mensaje: 'Error al crear tarea' });
   }
-};
+}
 
 // -------------------- REEMPLAZAR UNA TAREA COMPLETA --------------------
 // PUT /tareas/:id
-const updateTarea = async (req, res) => {
+// Actualiza todos los campos de una tarea existente
+async function updateTarea(req, res) {
   try {
     const tarea = req.body;
     const id = req.params.id;
 
-    // Validaciones de relaciones y tipos
+    // Validamos empleado y evento asignados
     if (tarea.empleadoAsignado) {
       const empleado = await EmpleadoModel.getById(tarea.empleadoAsignado);
       if (!empleado) return res.status(400).json({ mensaje: 'Empleado asignado no existe' });
     }
-
     if (tarea.eventoAsignado) {
       const evento = await EventoModel.getById(tarea.eventoAsignado);
       if (!evento) return res.status(400).json({ mensaje: 'Evento asignado no existe' });
     }
 
+    // Validamos tipo según área
     if (tarea.area && tarea.tipo) {
       const tiposPermitidos = AREAS[tarea.area];
       if (!tiposPermitidos || !tiposPermitidos.includes(tarea.tipo)) {
@@ -93,6 +98,7 @@ const updateTarea = async (req, res) => {
       }
     }
 
+    // Actualizamos la tarea
     const actualizada = await TareaModel.update(id, tarea);
     if (!actualizada) return res.status(404).json({ mensaje: 'Tarea no encontrada' });
 
@@ -101,26 +107,25 @@ const updateTarea = async (req, res) => {
     console.error(error);
     res.status(500).json({ mensaje: 'Error al actualizar tarea' });
   }
-};
+}
 
 // -------------------- ACTUALIZAR PARCIALMENTE --------------------
 // PATCH /tareas/:id
-const patchTarea = async (req, res) => {
+// Actualiza solo los campos enviados de una tarea
+async function patchTarea(req, res) {
   try {
     const campos = req.body;
     const id = req.params.id;
 
-    // Validaciones de relaciones y tipos
+    // Validaciones parciales
     if (campos.empleadoAsignado) {
       const empleado = await EmpleadoModel.getById(campos.empleadoAsignado);
       if (!empleado) return res.status(400).json({ mensaje: 'Empleado asignado no existe' });
     }
-
     if (campos.eventoAsignado) {
       const evento = await EventoModel.getById(campos.eventoAsignado);
       if (!evento) return res.status(400).json({ mensaje: 'Evento asignado no existe' });
     }
-
     if (campos.area && campos.tipo) {
       const tiposPermitidos = AREAS[campos.area];
       if (!tiposPermitidos || !tiposPermitidos.includes(campos.tipo)) {
@@ -128,6 +133,7 @@ const patchTarea = async (req, res) => {
       }
     }
 
+    // Actualizamos parcialmente la tarea
     const actualizada = await TareaModel.patch(id, campos);
     if (!actualizada) return res.status(404).json({ mensaje: 'Tarea no encontrada' });
 
@@ -136,11 +142,12 @@ const patchTarea = async (req, res) => {
     console.error(error);
     res.status(500).json({ mensaje: 'Error al actualizar tarea parcialmente' });
   }
-};
+}
 
 // -------------------- ELIMINAR TAREA --------------------
 // DELETE /tareas/:id
-const deleteTarea = async (req, res) => {
+// Elimina una tarea según su ID
+async function deleteTarea(req, res) {
   try {
     const eliminada = await TareaModel.remove(req.params.id);
     if (!eliminada) return res.status(404).json({ mensaje: 'Tarea no encontrada' });
@@ -149,35 +156,32 @@ const deleteTarea = async (req, res) => {
     console.error(error);
     res.status(500).json({ mensaje: 'Error al eliminar tarea' });
   }
-};
+}
 
 // -------------------- FILTRAR TAREAS --------------------
-const filterTareas = async (req, res) => {
+// GET /tareas/filter
+// Filtra las tareas según parámetros de consulta (estado, prioridad, fechas, empleado, evento)
+async function filterTareas(req, res) {
   try {
     let tareas = await TareaModel.getAll();
     const { estado, prioridad, tipoFecha, fecha, empleado, evento } = req.query;
 
-    // Filtrar por estado
+    // Filtrado por estado
     if (estado) tareas = tareas.filter(t => t.estado === estado);
 
-    // Filtrar por prioridad
+    // Filtrado por prioridad
     if (prioridad) tareas = tareas.filter(t => t.prioridad === prioridad);
 
-    // Filtrar por fecha (inicio o fin)
+    // Filtrado por fecha (inicio o fin)
     if (tipoFecha && fecha) {
-      const fechaFiltro = new Date(fecha).toISOString().split('T')[0]; // "YYYY-MM-DD"
-
-      if (tipoFecha === 'inicio') {
-        tareas = tareas.filter(t => t.fechaInicio === fechaFiltro);
-      } else if (tipoFecha === 'fin') {
-        tareas = tareas.filter(t => t.fechaFin === fechaFiltro);
-      }
+      const fechaFiltro = new Date(fecha).toISOString().split('T')[0];
+      tareas = tareas.filter(t => tipoFecha === 'inicio' ? t.fechaInicio === fechaFiltro : t.fechaFin === fechaFiltro);
     }
 
-    // Filtrar por empleado asignado
+    // Filtrado por empleado
     if (empleado) tareas = tareas.filter(t => String(t.empleadoAsignado) === String(empleado));
 
-    // Filtrar por evento asignado
+    // Filtrado por evento
     if (evento) tareas = tareas.filter(t => String(t.eventoAsignado) === String(evento));
 
     res.json(tareas);
@@ -185,9 +189,11 @@ const filterTareas = async (req, res) => {
     console.error(error);
     res.status(500).json({ mensaje: 'Error al filtrar tareas' });
   }
-};
+}
 
-module.exports = { listTareas, getTarea, addTarea, updateTarea, patchTarea, deleteTarea, filterTareas };
+// Exportamos todas las funciones
+export default { listTareas, getTarea, addTarea, updateTarea, patchTarea, deleteTarea, filterTareas };
+
 
 
 

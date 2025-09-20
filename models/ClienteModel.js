@@ -1,5 +1,12 @@
-const fs = require('fs').promises; // Usamos promesas nativas
-const CLIENTES_FILE = './db/clientes.json';
+// models/ClienteModel.js
+import fs from 'fs/promises';
+import path from 'path';
+import { fileURLToPath } from 'url';
+
+// Ruta del archivo JSON
+const __filename = fileURLToPath(import.meta.url);
+const __dirname = path.dirname(__filename);
+const CLIENTES_FILE = path.join(__dirname, '../db/clientes.json');
 
 class ClienteModel {
   constructor() {}
@@ -11,18 +18,13 @@ class ClienteModel {
       const data = await fs.readFile(CLIENTES_FILE, 'utf-8');
       return JSON.parse(data);
     } catch (error) {
-      // Si no existe el archivo o hay error, devolvemos arreglo vacío
       return [];
     }
   }
 
   // Guardar clientes en JSON de forma asíncrona
   async _save(clientes) {
-    try {
-      await fs.writeFile(CLIENTES_FILE, JSON.stringify(clientes, null, 2));
-    } catch (error) {
-      throw new Error('Error al guardar clientes');
-    }
+    await fs.writeFile(CLIENTES_FILE, JSON.stringify(clientes, null, 2));
   }
 
   // -------------------- CRUD --------------------
@@ -58,12 +60,7 @@ class ClienteModel {
     const index = clientes.findIndex(c => String(c.id) === String(id));
     if (index === -1) return null;
 
-    clientes[index] = {
-      ...clientes[index],
-      ...cliente,
-      id: clientes[index].id // Mantener ID original
-    };
-
+    clientes[index] = { ...clientes[index], ...cliente, id: clientes[index].id };
     await this._save(clientes);
     return clientes[index];
   }
@@ -85,5 +82,6 @@ class ClienteModel {
   }
 }
 
-module.exports = new ClienteModel();
+export default new ClienteModel();
+
 

@@ -9,12 +9,48 @@ const AREAS = {
   "Planificación y Finanzas": ["Carga y control del presupuesto", "Firma de contratos", "Seguimiento del cronograma"]
 };
 
-// -------------------- LISTAR TODAS LAS TAREAS --------------------
+// -------------------- LISTAR Y FILTRAR TAREAS --------------------
 // GET /tareas
-// Devuelve todas las tareas almacenadas
+// Devuelve todas las tareas o las filtra según query params
 async function listTareas(req, res) {
   try {
-    const tareas = await TareaModel.getAll();
+    let tareas = await TareaModel.getAll();
+    const { estado, prioridad, fechaInicio, fechaFin, empleadoAsignado, eventoAsignado } = req.query;
+
+    // Filtrar por estado
+    if (estado) {
+      tareas = tareas.filter(t => t.estado === estado);
+    }
+
+    // Filtrar por prioridad
+    if (prioridad) {
+      tareas = tareas.filter(t => t.prioridad === prioridad);
+    }
+
+    // Filtrar por rango de fechas
+    if (fechaInicio && fechaFin) {
+      const inicioFiltro = new Date(fechaInicio);
+      const finFiltro = new Date(fechaFin);
+
+      tareas = tareas.filter(t => {
+        if (!t.fechaInicio || !t.fechaFin) return false; // descartamos tareas sin fechas
+        const tareaInicio = new Date(t.fechaInicio);
+        const tareaFin = new Date(t.fechaFin);
+        return tareaInicio >= inicioFiltro && tareaFin <= finFiltro;
+      });
+    }
+
+    // Filtrar por empleado asignado
+    if (empleadoAsignado) {
+      tareas = tareas.filter(t => String(t.empleadoAsignado) === String(empleadoAsignado));
+    }
+
+    // Filtrar por evento asignado
+    if (eventoAsignado) {
+      tareas = tareas.filter(t => String(t.eventoAsignado) === String(eventoAsignado));
+    }
+
+    // Devolver el resultado (si no hay filtros devuelve todas)
     res.json(tareas);
   } catch (error) {
     console.error(error);
@@ -158,41 +194,8 @@ async function deleteTarea(req, res) {
   }
 }
 
-// -------------------- FILTRAR TAREAS --------------------
-// GET /tareas/filter
-// Filtra las tareas según parámetros de consulta (estado, prioridad, fechas, empleado, evento)
-async function filterTareas(req, res) {
-  try {
-    let tareas = await TareaModel.getAll();
-    const { estado, prioridad, tipoFecha, fecha, empleado, evento } = req.query;
-
-    // Filtrado por estado
-    if (estado) tareas = tareas.filter(t => t.estado === estado);
-
-    // Filtrado por prioridad
-    if (prioridad) tareas = tareas.filter(t => t.prioridad === prioridad);
-
-    // Filtrado por fecha (inicio o fin)
-    if (tipoFecha && fecha) {
-      const fechaFiltro = new Date(fecha).toISOString().split('T')[0];
-      tareas = tareas.filter(t => tipoFecha === 'inicio' ? t.fechaInicio === fechaFiltro : t.fechaFin === fechaFiltro);
-    }
-
-    // Filtrado por empleado
-    if (empleado) tareas = tareas.filter(t => String(t.empleadoAsignado) === String(empleado));
-
-    // Filtrado por evento
-    if (evento) tareas = tareas.filter(t => String(t.eventoAsignado) === String(evento));
-
-    res.json(tareas);
-  } catch (error) {
-    console.error(error);
-    res.status(500).json({ mensaje: 'Error al filtrar tareas' });
-  }
-}
-
 // Exportamos todas las funciones
-export default { listTareas, getTarea, addTarea, updateTarea, patchTarea, deleteTarea, filterTareas };
+export default { listTareas, getTarea, addTarea, updateTarea, patchTarea, deleteTarea};
 
 
 

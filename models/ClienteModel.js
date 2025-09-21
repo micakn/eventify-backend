@@ -41,18 +41,20 @@ class ClienteModel {
 
   // Agregar un nuevo cliente
   async add(cliente) {
-    const clientes = await this._load();
-    const nuevo = {
-      id: Date.now(),
-      nombre: cliente.nombre || 'Sin nombre',
-      email: cliente.email || '',
-      telefono: cliente.telefono || '',
-      empresa: cliente.empresa || ''
-    };
-    clientes.push(nuevo);
-    await this._save(clientes);
-    return nuevo;
-  }
+  const clientes = await this._load();
+  const nuevo = {
+    id: Date.now(),
+    nombre: cliente.nombre || 'Sin nombre',
+    email: cliente.email || '',
+    telefono: cliente.telefono || '',
+    empresa: cliente.empresa || '',
+    tipo: cliente.tipo || 'individual'
+  };
+  clientes.push(nuevo);
+  await this._save(clientes);
+  return nuevo;
+}
+
 
   // Reemplazar completamente un cliente (PUT)
   async update(id, cliente) {

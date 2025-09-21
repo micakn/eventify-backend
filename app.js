@@ -11,6 +11,9 @@ import empleadoRoutes from './routes/empleadoRoutes.js';
 import clienteRoutes from './routes/clienteRoutes.js';
 import eventoRoutes from './routes/eventoRoutes.js';
 
+// Importar routers web
+import clienteWebRoutes from './routes/clienteWebRoutes.js';
+
 // Importar modelos para renderizar datos en index
 import TareaModel from './models/TareaModel.js';
 import EmpleadoModel from './models/EmpleadoModel.js';
@@ -63,6 +66,9 @@ app.get('/', async (req, res) => {
     res.status(500).send('Error al cargar la página');
   }
 });
+
+// Montar módulo clientes
+app.use('/clientes', clienteWebRoutes)
 
 // Routers de cada módulo
 app.use('/tareas', tareaRoutes);

@@ -10,7 +10,10 @@ block content
             h3= formTitle || 'Formulario de Cliente'
           .card-body
             form(method="POST", action=cliente ? `/clientes/${cliente.id}?_method=PUT` : "/clientes")
-              
+              if cliente
+                //- label(for="nombre") Nombre:
+                //- input#nombre.form-control(type="text", name="nombre", value=cliente ? cliente.nombre : '')
+
               .row
                 .col-md-6
                   .mb-3

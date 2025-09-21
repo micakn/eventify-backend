@@ -1,13 +1,5 @@
 [
   {
-    "id": 1,
-    "nombre": "Empresa Tech",
-    "empresa": "Empresa Tech",
-    "email": "contacto@acme.com",
-    "telefono": "+541122223333",
-    "tipo": "empresa"
-  },
-  {
     "id": 2,
     "nombre": "Startup Innovadora",
     "empresa": "Startup Innovadora",
@@ -24,11 +16,11 @@
     "tipo": "individual"
   },
   {
-    "id": 1758301970176,
-    "nombre": "Alejandra",
-    "email": "ale@gmail.com",
-    "telefono": "3874563633",
-    "empresa": "",
+    "id": 1758473659799,
+    "nombre": "Horacio H.",
+    "email": "hora@hotmail.com",
+    "telefono": "3874536365",
+    "empresa": "HDQ",
     "tipo": "individual"
   }
 ]

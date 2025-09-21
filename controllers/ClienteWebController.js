@@ -1,7 +1,8 @@
-const ClienteModel = require('../models/ClienteModel');
+// controllers/clienteController.js
+import ClienteModel from '../models/ClienteModel.js';
 
 // Listar todos los clientes (VISTA WEB)
-const listClientesWeb = async (req, res) => {
+export const listClientesWeb = async (req, res) => {
   try {
     const clientes = await ClienteModel.getAll();
     res.render('clientes/index', {
@@ -18,7 +19,7 @@ const listClientesWeb = async (req, res) => {
 };
 
 // Mostrar formulario para nuevo cliente
-const showNewForm = (req, res) => {
+export const showNewForm = (req, res) => {
   res.render('clientes/form', {
     title: 'Nuevo Cliente - Eventify',
     formTitle: 'Nuevo Cliente',
@@ -28,7 +29,7 @@ const showNewForm = (req, res) => {
 };
 
 // Mostrar formulario para editar cliente
-const showEditForm = async (req, res) => {
+export const showEditForm = async (req, res) => {
   try {
     const cliente = await ClienteModel.getById(req.params.id);
     if (!cliente) {
@@ -54,7 +55,7 @@ const showEditForm = async (req, res) => {
 };
 
 // Mostrar detalles del cliente
-const showCliente = async (req, res) => {
+export const showCliente = async (req, res) => {
   try {
     const cliente = await ClienteModel.getById(req.params.id);
     if (!cliente) {
@@ -78,7 +79,7 @@ const showCliente = async (req, res) => {
 };
 
 // Crear nuevo cliente (desde formulario web)
-const createClienteWeb = async (req, res) => {
+export const createClienteWeb = async (req, res) => {
   try {
     await ClienteModel.add(req.body);
     res.redirect('/clientes');
@@ -92,7 +93,7 @@ const createClienteWeb = async (req, res) => {
 };
 
 // Actualizar cliente (desde formulario web)
-const updateClienteWeb = async (req, res) => {
+export const updateClienteWeb = async (req, res) => {
   try {
     const actualizado = await ClienteModel.update(req.params.id, req.body);
     if (!actualizado) {
@@ -112,7 +113,7 @@ const updateClienteWeb = async (req, res) => {
 };
 
 // Eliminar cliente (desde web)
-const deleteClienteWeb = async (req, res) => {
+export const deleteClienteWeb = async (req, res) => {
   try {
     const eliminado = await ClienteModel.remove(req.params.id);
     if (!eliminado) {
@@ -131,12 +132,12 @@ const deleteClienteWeb = async (req, res) => {
   }
 };
 
-module.exports = {
-  listClientesWeb,
-  showNewForm,
-  showEditForm,
-  showCliente,
-  createClienteWeb,
-  updateClienteWeb,
-  deleteClienteWeb
-};
+// module.exports = {
+//   listClientesWeb,
+//   showNewForm,
+//   showEditForm,
+//   showCliente,
+//   createClienteWeb,
+//   updateClienteWeb,
+//   deleteClienteWeb
+// };

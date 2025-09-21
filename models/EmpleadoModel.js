@@ -1,5 +1,11 @@
-const fs = require('fs').promises; // Usamos promesas nativas
-const EMPLEADOS_FILE = './db/empleados.json';
+import fs from 'fs/promises';
+import path from 'path';
+import { fileURLToPath } from 'url';
+
+// Ruta del archivo JSON
+const __filename = fileURLToPath(import.meta.url);
+const __dirname = path.dirname(__filename);
+const EMPLEADOS_FILE = path.join(__dirname, '../db/empleados.json');
 
 class EmpleadoModel {
   constructor() {}
@@ -11,18 +17,13 @@ class EmpleadoModel {
       const data = await fs.readFile(EMPLEADOS_FILE, 'utf-8');
       return JSON.parse(data);
     } catch (error) {
-      // Si no existe el archivo o hay error, devolvemos arreglo vacío
       return [];
     }
   }
 
   // Guardar empleados en JSON de forma asíncrona
   async _save(empleados) {
-    try {
-      await fs.writeFile(EMPLEADOS_FILE, JSON.stringify(empleados, null, 2));
-    } catch (error) {
-      throw new Error('Error al guardar empleados');
-    }
+    await fs.writeFile(EMPLEADOS_FILE, JSON.stringify(empleados, null, 2));
   }
 
   // -------------------- CRUD --------------------
@@ -43,8 +44,8 @@ class EmpleadoModel {
     const nuevo = {
       id: Date.now(),
       nombre: empleado.nombre || 'Sin nombre',
-      rol: empleado.rol || 'planner',                   // Valor por defecto planner
-      area: empleado.area || 'Producción y Logística',   // Valor por defecto
+      rol: empleado.rol || 'planner',
+      area: empleado.area || 'Producción y Logística',
       email: empleado.email || '',
       telefono: empleado.telefono || ''
     };
@@ -59,12 +60,7 @@ class EmpleadoModel {
     const index = empleados.findIndex(e => String(e.id) === String(id));
     if (index === -1) return null;
 
-    empleados[index] = {
-      ...empleados[index],
-      ...empleado,
-      id: empleados[index].id // Mantener ID original
-    };
-
+    empleados[index] = { ...empleados[index], ...empleado, id: empleados[index].id };
     await this._save(empleados);
     return empleados[index];
   }
@@ -86,7 +82,8 @@ class EmpleadoModel {
   }
 }
 
-module.exports = new EmpleadoModel();
+export default new EmpleadoModel();
+
 
 
 

@@ -43,5 +43,35 @@
     "eventoAsignado": 1,
     "horasEstimadas": 6,
     "horasReales": 0
+  },
+  {
+    "id": 1758402504582,
+    "titulo": "feria",
+    "descripcion": "",
+    "estado": "en progreso",
+    "fechaInicio": null,
+    "fechaFin": null,
+    "prioridad": "baja",
+    "area": "Producción y Logística",
+    "tipo": null,
+    "empleadoAsignado": null,
+    "eventoAsignado": null,
+    "horasEstimadas": 0,
+    "horasReales": 0
+  },
+  {
+    "id": 1758402580658,
+    "titulo": "feria",
+    "descripcion": "",
+    "estado": "en progreso",
+    "fechaInicio": null,
+    "fechaFin": null,
+    "prioridad": "baja",
+    "area": "Producción y Logística",
+    "tipo": null,
+    "empleadoAsignado": null,
+    "eventoAsignado": null,
+    "horasEstimadas": 0,
+    "horasReales": 0
   }
 ]

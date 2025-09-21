@@ -1,5 +1,11 @@
-const fs = require('fs').promises; // Usamos promesas nativas
-const EVENTOS_FILE = './db/eventos.json';
+import fs from 'fs/promises';
+import path from 'path';
+import { fileURLToPath } from 'url';
+
+// Ruta del archivo JSON
+const __filename = fileURLToPath(import.meta.url);
+const __dirname = path.dirname(__filename);
+const EVENTOS_FILE = path.join(__dirname, '../db/eventos.json');
 
 class EventoModel {
   constructor() {}
@@ -11,18 +17,13 @@ class EventoModel {
       const data = await fs.readFile(EVENTOS_FILE, 'utf-8');
       return JSON.parse(data);
     } catch (error) {
-      // Si no existe el archivo o hay error, devolvemos arreglo vacío
       return [];
     }
   }
 
   // Guardar eventos en JSON de forma asíncrona
   async _save(eventos) {
-    try {
-      await fs.writeFile(EVENTOS_FILE, JSON.stringify(eventos, null, 2));
-    } catch (error) {
-      throw new Error('Error al guardar eventos');
-    }
+    await fs.writeFile(EVENTOS_FILE, JSON.stringify(eventos, null, 2));
   }
 
   // -------------------- CRUD --------------------
@@ -41,7 +42,7 @@ class EventoModel {
   async add(evento) {
     const eventos = await this._load();
     const nuevo = {
-      id: Date.now(),                // ID único
+      id: Date.now(),
       nombre: evento.nombre || 'Sin nombre',
       descripcion: evento.descripcion || '',
       fechaInicio: evento.fechaInicio || null,
@@ -59,12 +60,7 @@ class EventoModel {
     const index = eventos.findIndex(ev => String(ev.id) === String(id));
     if (index === -1) return null;
 
-    eventos[index] = {
-      ...eventos[index],
-      ...evento,
-      id: eventos[index].id // Mantenemos el ID original
-    };
-
+    eventos[index] = { ...eventos[index], ...evento, id: eventos[index].id };
     await this._save(eventos);
     return eventos[index];
   }
@@ -86,6 +82,7 @@ class EventoModel {
   }
 }
 
-module.exports = new EventoModel();
+export default new EventoModel();
+
 
 

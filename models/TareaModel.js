@@ -1,5 +1,11 @@
-const fs = require('fs').promises; // Usamos promesas nativas
-const TAREAS_FILE = './db/tareas.json';
+import fs from 'fs/promises'; 
+import path from 'path';
+import { fileURLToPath } from 'url';
+
+// Ruta del archivo JSON
+const __filename = fileURLToPath(import.meta.url);
+const __dirname = path.dirname(__filename);
+const TAREAS_FILE = path.join(__dirname, '../db/tareas.json');
 
 class TareaModel {
   constructor() {}
@@ -11,18 +17,13 @@ class TareaModel {
       const data = await fs.readFile(TAREAS_FILE, 'utf-8');
       return JSON.parse(data);
     } catch (error) {
-      // Si no existe el archivo o hay error, devolvemos arreglo vacío
       return [];
     }
   }
 
   // Guardar tareas en el JSON de forma asíncrona
   async _save(tareas) {
-    try {
-      await fs.writeFile(TAREAS_FILE, JSON.stringify(tareas, null, 2));
-    } catch (error) {
-      throw new Error('Error al guardar tareas');
-    }
+    await fs.writeFile(TAREAS_FILE, JSON.stringify(tareas, null, 2));
   }
 
   // -------------------- CRUD --------------------
@@ -41,7 +42,7 @@ class TareaModel {
   async add(tarea) {
     const tareas = await this._load();
     const nueva = {
-      id: Date.now(),                   // ID único
+      id: Date.now(),
       titulo: tarea.titulo || 'Sin título',
       descripcion: tarea.descripcion || '',
       estado: tarea.estado || 'pendiente',  // pendiente | en proceso | finalizada
@@ -49,7 +50,7 @@ class TareaModel {
       fechaFin: tarea.fechaFin || null,
       prioridad: tarea.prioridad || 'media', 
       area: tarea.area || 'Producción y Logística', 
-      tipo: tarea.tipo || null,         // Tipo de tarea según área
+      tipo: tarea.tipo || null,
       empleadoAsignado: tarea.empleadoAsignado || null,
       eventoAsignado: tarea.eventoAsignado || null,
       horasEstimadas: Number(tarea.horasEstimadas) || 0,
@@ -66,17 +67,12 @@ class TareaModel {
     const index = tareas.findIndex(t => String(t.id) === String(id));
     if (index === -1) return null;
 
-    tareas[index] = {
-      ...tareas[index],
-      ...tarea, // Sobrescribimos con los nuevos campos
-      id: tareas[index].id // Mantenemos el ID original
-    };
-
+    tareas[index] = { ...tareas[index], ...tarea, id: tareas[index].id };
     await this._save(tareas);
     return tareas[index];
   }
 
-  // Actualizar parcialmente (PATCH) -> llamamos a update
+  // Actualizar parcialmente (PATCH)
   async patch(id, campos) {
     return this.update(id, campos);
   }
@@ -93,4 +89,4 @@ class TareaModel {
   }
 }
 
-module.exports = new TareaModel();
+export default new TareaModel();

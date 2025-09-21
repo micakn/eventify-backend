@@ -15,21 +15,6 @@
     "horasReales": 0
   },
   {
-    "id": 2,
-    "titulo": "Coordinación con proveedores",
-    "descripcion": "Contactar catering y sonido",
-    "estado": "pendiente",
-    "fechaInicio": "2025-09-18",
-    "fechaFin": "2025-09-19",
-    "prioridad": "media",
-    "area": "Producción y Logística",
-    "tipo": "Coordinación con proveedores",
-    "empleadoAsignado": 3,
-    "eventoAsignado": 2,
-    "horasEstimadas": 5,
-    "horasReales": 0
-  },
-  {
     "id": 3,
     "titulo": "Carga y control del presupuesto",
     "descripcion": "Controlar presupuesto del evento",
@@ -72,6 +57,21 @@
     "empleadoAsignado": null,
     "eventoAsignado": null,
     "horasEstimadas": 0,
+    "horasReales": 0
+  },
+  {
+    "id": 1758486952572,
+    "titulo": "Montaje de escenario",
+    "descripcion": "Preparar escenario y sonido",
+    "estado": "pendiente",
+    "fechaInicio": "2025-09-25",
+    "fechaFin": "2025-09-26",
+    "prioridad": "alta",
+    "area": "Producción y Logística",
+    "tipo": "Montaje de escenario",
+    "empleadoAsignado": 3,
+    "eventoAsignado": 2,
+    "horasEstimadas": 8,
     "horasReales": 0
   }
 ]

@@ -1,18 +1,42 @@
 [
   {
-    "id": 1,
-    "nombre": "Empresa Tech",
-    "empresa": "Empresa Tech",
-    "email": "contacto@acme.com",
-    "telefono": "+541122223333",
-    "tipo": "empresa"
-  },
-  {
     "id": 2,
     "nombre": "Startup Innovadora",
     "empresa": "Startup Innovadora",
     "email": "info@startup.com",
     "telefono": "+541122223337",
     "tipo": "empresa"
+  },
+  {
+    "id": 1758488073786,
+    "nombre": "Startup Innovadora S.A.",
+    "email": "contacto@startup.com",
+    "telefono": "+541122223337",
+    "empresa": "Startup Innovadora",
+    "tipo": "empresa"
+  },
+  {
+    "id": 1758488247740,
+    "nombre": "Lucía Pérez",
+    "email": "lucia@example.com",
+    "telefono": "+541122223340",
+    "empresa": "",
+    "tipo": "individual"
+  },
+  {
+    "id": 1758488301683,
+    "nombre": "Lucía Pérez",
+    "email": "lucia@example.com",
+    "telefono": "+541122223340",
+    "empresa": "",
+    "tipo": "individual"
+  },
+  {
+    "id": 1758488305422,
+    "nombre": "Lucía Pérez",
+    "email": "lucia@example.com",
+    "telefono": "+541122223340",
+    "empresa": "",
+    "tipo": "individual"
   }
 ]

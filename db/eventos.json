@@ -1,11 +1,34 @@
 [
   {
-    "id": 2,
-    "nombre": "Feria de Startups",
-    "descripcion": "Feria de innovación y emprendimiento",
-    "fechaInicio": "2025-11-05",
-    "fechaFin": "2025-11-06",
-    "lugar": "Expo Center",
-    "presupuesto": 300000
+    "id": 1758490208919,
+    "nombre": "Festival de Innovación",
+    "descripcion": "Evento anual con charlas, talleres y networking",
+    "fechaInicio": null,
+    "fechaFin": null,
+    "lugar": "Centro de Convenciones"
+  },
+  {
+    "id": 1758490257461,
+    "nombre": "Festival de Innovación",
+    "descripcion": "Evento anual con charlas, talleres y networking",
+    "fechaInicio": null,
+    "fechaFin": null,
+    "lugar": "Centro de Convenciones"
+  },
+  {
+    "id": 1758490262588,
+    "nombre": "Festival de Innovación",
+    "descripcion": "Evento anual con charlas, talleres y networking",
+    "fechaInicio": null,
+    "fechaFin": null,
+    "lugar": ""
+  },
+  {
+    "id": 1758490279862,
+    "nombre": "Festival de Innovación",
+    "descripcion": "Evento anual con charlas, talleres y networking",
+    "fechaInicio": null,
+    "fechaFin": null,
+    "lugar": "Centro de Convenciones"
   }
 ]

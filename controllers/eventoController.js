@@ -1,4 +1,4 @@
-import EventoModel from '../models/eventoModel.js';
+import EventoModel from '../models/EventoModel.js';
 
 // -------------------- LISTAR TODOS LOS EVENTOS --------------------
 // GET /eventos

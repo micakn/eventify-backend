@@ -1,0 +1,2244 @@
+
+=====================================================
+
+# Archivo: C:\Users\micae\Desktop\4to Cuatri\Back\ProyectoBack\eventify-backend\.env
+
+PORT = 3000
+MONGODB_URI=mongodb+srv://marilenknass_db_user:jQ5DS0xThNVF0LlM@cluster0.7hqkenc.mongodb.net/eventify
+
+=====================================================
+
+# Archivo: C:\Users\micae\Desktop\4to Cuatri\Back\ProyectoBack\eventify-backend\.gitignore
+
+node_modules/
+.env
+
+=====================================================
+
+# Archivo: C:\Users\micae\Desktop\4to Cuatri\Back\ProyectoBack\eventify-backend\app.js
+
+// app.js
+// -------------------- Imports --------------------
+import express from 'express';
+import path from 'path';
+import { fileURLToPath } from 'url';
+import methodOverride from 'method-override';
+import dotenv from 'dotenv';
+
+// Importar routers
+import tareaRoutes from './routes/tareaRoutes.js';
+import empleadoRoutes from './routes/empleadoRoutes.js';
+import clienteRoutes from './routes/clienteRoutes.js'; // API
+import clienteWebRoutes from './routes/clienteWebRoutes.js'; // Vistas web
+import eventoRoutes from './routes/eventoRoutes.js';
+
+// Modelos (usarán Mongoose internamente)
+import ClienteModel from './models/ClienteModel.js';
+import EmpleadoModel from './models/EmpleadoModel.js';
+import EventoModel from './models/EventoModel.js';
+import TareaModel from './models/TareaModel.js';
+
+// Conexión a Mongo
+import { connectMongo } from './db/mongoose.js';
+
+// -------------------- Configuración --------------------
+dotenv.config(); // Cargar variables de entorno
+
+const app = express();
+const PORT = process.env.PORT || 3000;
+
+// Configuración de __dirname
+const __filename = fileURLToPath(import.meta.url);
+const __dirname = path.dirname(__filename);
+
+// -------------------- Middlewares --------------------
+app.use(express.json()); // Permite recibir JSON
+app.use(express.urlencoded({ extended: true })); // Formularios
+app.use(methodOverride('_method')); // Permite usar DELETE/PUT desde formularios
+
+// Archivos estáticos
+app.use(express.static(path.join(__dirname, 'public')));
+
+// Middleware para currentPath (útil en layout)
+app.use((req, res, next) => {
+  res.locals.currentPath = req.path;
+  next();
+});
+
+// -------------------- Motor de vistas --------------------
+app.set('view engine', 'pug');
+app.set('views', path.join(__dirname, 'views'));
+
+// -------------------- Rutas --------------------
+
+// Ruta principal
+app.get('/', async (req, res) => {
+  try {
+    const tareas = await TareaModel.getAll();
+    const empleados = await EmpleadoModel.getAll();
+    const clientes = await ClienteModel.getAll();
+    const eventos = await EventoModel.getAll();
+
+    res.render('index', {
+      title: 'Eventify - Backend',
+      tareas,
+      empleados,
+      clientes,
+      eventos
+    });
+  } catch (error) {
+    console.error('Error al cargar index:', error);
+    res.status(500).render('error', { title: 'Error', message: 'Error al cargar la página principal' });
+  }
+});
+
+// -------------------- Routers --------------------
+
+// Web (vistas Pug)
+app.use('/clientes', clienteWebRoutes);
+
+// APIs (para pruebas con Thunder Client)
+app.use('/api/clientes', clienteRoutes);
+app.use('/api/empleados', empleadoRoutes);
+app.use('/api/eventos', eventoRoutes);
+app.use('/api/tareas', tareaRoutes);
+
+// -------------------- Manejo de rutas no encontradas --------------------
+app.use((req, res) => {
+  res.status(404).render('error', { title: '404', message: 'Ruta no encontrada' });
+});
+
+// Iniciar servidor SOLO tras conectar a Mongo
+connectMongo(process.env.MONGODB_URI)
+.then(() => {
+app.listen(PORT, () => {
+console.log(`Servidor corriendo en http://localhost:${PORT}`);
+});
+})
+.catch((err) => {
+console.error('❌ Error conectando a Mongo:', err);
+process.exit(1);
+});
+
+=====================================================
+
+# Archivo: C:\Users\micae\Desktop\4to Cuatri\Back\ProyectoBack\eventify-backend\package.json
+
+{
+  "name": "eventify-backend",
+  "version": "1.0.0",
+  "description": "App de eventos en Node.js con MVC, Pug, ESM y .env",
+  "main": "app.js",
+  "type": "module",
+  "scripts": {
+    "start": "nodemon app.js",
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/micakn/eventify-backend.git"
+  },
+  "keywords": [],
+  "author": "",
+  "license": "ISC",
+  "bugs": {
+    "url": "https://github.com/micakn/eventify-backend/issues"
+  },
+  "homepage": "https://github.com/micakn/eventify-backend#readme",
+  "dependencies": {
+    "dotenv": "^16.6.1",
+    "express": "^4.18.2",
+    "method-override": "^3.0.0",
+    "mongoose": "^8.19.2",
+    "pug": "^3.0.2"
+  },
+  "devDependencies": {
+    "nodemon": "^3.1.10"
+  }
+}
+
+=====================================================
+
+# Archivo: C:\Users\micae\Desktop\4to Cuatri\Back\ProyectoBack\eventify-backend\README.md
+
+# 🎟️ Eventify - Backend de Gestión de Eventos
+
+**Eventify** es un sistema backend desarrollado con **Node.js, Express y MongoDB**, diseñado para gestionar eventos, empleados, clientes y tareas organizadas por área.  
+
+---
+
+## 🧠 Descripción general
+
+El sistema permite:
+- Registrar **clientes, empleados y eventos**.
+- Crear y asignar **tareas** según el área correspondiente.
+- Validar que los **tipos de tareas** coincidan con el área.
+- Filtrar tareas por **estado, prioridad, empleado, evento y fechas**.
+- Gestionar los datos mediante **API REST** o **vistas Pug**.
+
+---
+
+## ⚙️ Tecnologías utilizadas
+
+- **Node.js** + **Express**
+- **MongoDB Atlas** con **Mongoose**
+- **Dotenv** para variables de entorno
+- **Nodemon** para desarrollo
+- **Pug** como motor de vistas (para la parte web)
+- **Thunder Client / Postman** para pruebas de API
+
+---
+
+## 🧩 Estructura del proyecto
+
+eventify-backend/
+│
+├── controllers/
+│ ├── ClienteController.js
+│ ├── EmpleadoController.js
+│ ├── EventoController.js
+│ ├── TareaController.js
+│ └── ClienteWebController.js
+│
+├── models/
+│ ├── ClienteModel.js
+│ ├── EmpleadoModel.js
+│ ├── EventoModel.js
+│ ├── TareaModel.js
+│
+├── db/
+│ └── mongoose.js
+│
+├── routes/
+│ ├── clienteRoutes.js
+│ ├── empleadoRoutes.js
+│ ├── eventoRoutes.js
+│ ├── tareaRoutes.js
+│
+├── views/
+│ ├── layout/
+│ ├── clientes/
+│ ├── eventos/
+│ ├── tareas/
+│
+├── seed.js # Script de carga inicial
+├── app.js # Configuración principal del servidor
+├── package.json
+└── .env
+
+yaml
+Copiar código
+
+---
+
+## 🧱 Modelos de datos principales
+
+### 🧍 Empleado
+| Campo | Tipo | Descripción |
+|--------|------|-------------|
+| nombre | String | Nombre completo |
+| rol | String | administrador / planner / coordinador |
+| area | String | Área del empleado |
+| email | String | Correo institucional |
+| telefono | String | Contacto |
+
+### 🧾 Cliente
+| Campo | Tipo | Descripción |
+|--------|------|-------------|
+| nombre | String | Nombre del cliente o empresa |
+| email | String | Correo electrónico |
+| telefono | String | Teléfono de contacto |
+| empresa | String | Empresa asociada |
+| notas | String | Observaciones adicionales |
+
+### 🗓️ Evento
+| Campo | Tipo | Descripción |
+|--------|------|-------------|
+| nombre | String | Nombre del evento |
+| descripcion | String | Detalle o tipo de evento |
+| lugar | String | Ubicación |
+| fechaInicio / fechaFin | Date | Duración del evento |
+
+### 🧮 Tarea
+| Campo | Tipo | Descripción |
+|--------|------|-------------|
+| titulo | String | Nombre de la tarea |
+| descripcion | String | Detalle de la tarea |
+| estado | String | pendiente / en proceso / finalizada |
+| prioridad | String | baja / media / alta |
+| area | String | Área correspondiente |
+| tipo | String | Tipo de tarea válida según área |
+| empleadoAsignado | ObjectId (Empleado) | Asignado a |
+| eventoAsignado | ObjectId (Evento) | Evento relacionado |
+| horasEstimadas / horasReales | Number | Tiempo de trabajo |
+
+---
+
+## 🧭 Áreas, roles y tareas válidas
+
+### 🔹 Áreas de trabajo
+| Área | Tareas posibles |
+|------|------------------|
+| **Producción y Logística** | Coordinación con proveedores, Montaje de escenario, Verificación técnica previa |
+| **Planificación y Finanzas** | Carga y control del presupuesto, Firma de contratos, Seguimiento del cronograma y fechas clave |
+| **Administración** | Mantenimiento de base de datos de clientes, Control de permisos y accesos |
+| *(Opcional futura)* **Atención al Cliente** | Seguimiento de satisfacción, Comunicación post-evento, Gestión de reclamos |
+
+### 🔹 Roles
+| Rol | Descripción |
+|------|-------------|
+| **administrador** | Control total del sistema |
+| **planner** | Planifica presupuestos y cronogramas |
+| **coordinador** | Supervisa logística, proveedores y montaje |
+
+---
+
+## 🌱 Carga inicial de datos (Seed)
+
+Para cargar datos de ejemplo en la base MongoDB:
+
+```bash
+node seed.js
+El script:
+
+Limpia las colecciones existentes (clientes, empleados, eventos, tareas)
+
+Inserta datos base coherentes con los roles y áreas
+
+Crea asociaciones válidas entre empleados, eventos y tareas
+
+🧪 Pruebas de API (Thunder Client / Postman)
+🔹 Clientes
+Método	Endpoint	Descripción
+GET	/api/clientes	Listar todos
+POST	/api/clientes	Crear nuevo cliente
+GET	/api/clientes/:id	Ver un cliente
+PATCH	/api/clientes/:id	Editar parcialmente
+DELETE	/api/clientes/:id	Eliminar cliente
+
+🔹 Empleados
+Método	Endpoint	Descripción
+GET	/api/empleados	Listar todos
+POST	/api/empleados	Crear nuevo empleado
+PATCH	/api/empleados/:id	Editar empleado
+DELETE	/api/empleados/:id	Eliminar empleado
+
+🔹 Eventos
+Método	Endpoint	Descripción
+GET	/api/eventos	Listar eventos
+POST	/api/eventos	Crear evento
+PATCH	/api/eventos/:id	Editar evento
+DELETE	/api/eventos/:id	Eliminar evento
+
+🔹 Tareas
+Método	Endpoint	Descripción
+GET	/api/tareas	Listar todas las tareas
+GET	/api/tareas?estado=pendiente	Filtrar por estado
+POST	/api/tareas	Crear tarea (validada por área/tipo)
+PATCH	/api/tareas/:id	Editar tarea
+DELETE	/api/tareas/:id	Eliminar tarea
+
+💡 Validación automática: si se intenta crear una tarea cuyo tipo no pertenece al area correspondiente, el backend devuelve:
+
+json
+Copiar código
+{ "mensaje": "Tarea inválida para el área seleccionada" }
+💾 Variables de entorno (.env)
+Ejemplo de archivo .env:
+
+ini
+Copiar código
+PORT=3000
+MONGODB_URI=mongodb+srv://usuario:password@cluster.mongodb.net/eventify
+🚀 Cómo ejecutar el proyecto
+Instalar dependencias
+
+bash
+Copiar código
+npm install
+Cargar los datos iniciales
+
+bash
+Copiar código
+node seed.js
+Ejecutar el servidor
+
+bash
+Copiar código
+npm run dev
+Probar en navegador o Thunder Client
+
+bash
+Copiar código
+http://localhost:3000/api/tareas
+🧾 Conclusiones
+Este backend implementa de forma completa el modelo de desarrollo incremental, cumpliendo con los requisitos:
+
+CRUD por entidad
+
+Validación lógica de tareas según área
+
+Roles de usuario diferenciados
+
+Persistencia real en MongoDB Atlas
+
+Scripts de carga inicial (seed.js)
+
+Endpoints REST funcionales y documentados
+
+=====================================================
+
+# Archivo: C:\Users\micae\Desktop\4to Cuatri\Back\ProyectoBack\eventify-backend\seed.js
+
+// seed.js
+// -------------------- SEED - CARGA INICIAL DE DATOS --------------------
+import dotenv from 'dotenv';
+import mongoose from 'mongoose';
+import { connectMongo, disconnectMongo } from './db/mongoose.js';
+
+dotenv.config();
+
+// -------------------- DEFINICIÓN DE MODELOS TEMPORALES --------------------
+const Cliente =
+  mongoose.models.Cliente ||
+  mongoose.model(
+    'Cliente',
+    new mongoose.Schema({
+      nombre: String,
+      email: String,
+      telefono: String,
+      empresa: String,
+      notas: String,
+    })
+  );
+
+const Empleado =
+  mongoose.models.Empleado ||
+  mongoose.model(
+    'Empleado',
+    new mongoose.Schema({
+      nombre: String,
+      rol: String,
+      area: String,
+      email: String,
+      telefono: String,
+    })
+  );
+
+const Evento =
+  mongoose.models.Evento ||
+  mongoose.model(
+    'Evento',
+    new mongoose.Schema({
+      nombre: String,
+      descripcion: String,
+      fechaInicio: Date,
+      fechaFin: Date,
+      lugar: String,
+    })
+  );
+
+const Tarea =
+  mongoose.models.Tarea ||
+  mongoose.model(
+    'Tarea',
+    new mongoose.Schema({
+      titulo: String,
+      descripcion: String,
+      estado: String,
+      fechaInicio: Date,
+      fechaFin: Date,
+      prioridad: String,
+      area: String,
+      tipo: String,
+      empleadoAsignado: { type: mongoose.Schema.Types.ObjectId, ref: 'Empleado' },
+      eventoAsignado: { type: mongoose.Schema.Types.ObjectId, ref: 'Evento' },
+      horasEstimadas: Number,
+      horasReales: Number,
+    })
+  );
+
+// -------------------- DATOS --------------------
+const clientesSeed = [
+  {
+    nombre: 'Vitalia S.A.',
+    email: 'contacto@vitalia.com',
+    telefono: '+5491122334455',
+    empresa: 'Vitalia',
+    notas: 'Cliente corporativo del sector salud',
+  },
+  {
+    nombre: 'Club Deportivo El Molino',
+    email: 'clubelmolino@gmail.com',
+    telefono: '+5491166677788',
+    empresa: 'Club El Molino',
+    notas: 'Cliente institucional con eventos anuales',
+  },
+  {
+    nombre: 'Cultura Viva ONG',
+    email: 'info@culturaviva.org',
+    telefono: '+5491155522233',
+    empresa: 'Cultura Viva',
+    notas: 'Organización sin fines de lucro',
+  },
+  {
+    nombre: 'Innovar S.R.L.',
+    email: 'proyectos@innovar.com',
+    telefono: '+5491188899911',
+    empresa: 'Innovar',
+    notas: 'Empresa tecnológica que organiza workshops mensuales',
+  },
+];
+
+const empleadosSeed = [
+  {
+    nombre: 'Juan Gonzales',
+    rol: 'coordinador',
+    area: 'Producción y Logística',
+    email: 'juan@example.com',
+    telefono: '+541122223336',
+  },
+  {
+    nombre: 'Sofía Ramírez',
+    rol: 'planner',
+    area: 'Planificación y Finanzas',
+    email: 'sofia.ramirez@example.com',
+    telefono: '+541133366677',
+  },
+  {
+    nombre: 'Alex Lopez',
+    rol: 'administrador',
+    area: 'Administración',
+    email: 'alex@example.com',
+    telefono: '+541122223335',
+  },
+  {
+    nombre: 'María Fernández',
+    rol: 'planner',
+    area: 'Planificación y Finanzas',
+    email: 'maria.fernandez@example.com',
+    telefono: '+541199955577',
+  },
+  {
+    nombre: 'Gonzalo Pérez',
+    rol: 'coordinador',
+    area: 'Producción y Logística',
+    email: 'gonzalo.perez@example.com',
+    telefono: '+541144488899',
+  },
+];
+
+const eventosSeed = [
+  {
+    nombre: 'Festival de Innovación',
+    descripcion: 'Evento anual con charlas, talleres y networking',
+    lugar: 'Centro de Convenciones',
+    fechaInicio: new Date('2025-11-10'),
+    fechaFin: new Date('2025-11-12'),
+  },
+  {
+    nombre: 'Presentación App Eventify',
+    descripcion: 'Lanzamiento del sistema de gestión Eventify',
+    lugar: 'Auditorio Principal',
+    fechaInicio: new Date('2025-12-01'),
+    fechaFin: new Date('2025-12-02'),
+  },
+  {
+    nombre: 'Expo Emprendedores 2025',
+    descripcion: 'Feria de emprendimientos y rondas de inversión',
+    lugar: 'Parque Tecnológico Buenos Aires',
+    fechaInicio: new Date('2025-09-15'),
+    fechaFin: new Date('2025-09-18'),
+  },
+  {
+    nombre: 'Foro de Software Libre',
+    descripcion: 'Charlas y paneles sobre código abierto y colaboración',
+    lugar: 'Centro Cultural San Martín',
+    fechaInicio: new Date('2025-08-22'),
+    fechaFin: new Date('2025-08-23'),
+  },
+];
+
+// -------------------- FUNCIÓN PRINCIPAL --------------------
+async function seedDB() {
+  await connectMongo(process.env.MONGODB_URI);
+  console.log('✅ Conectado a MongoDB Atlas');
+  console.log('🧹 Limpiando base de datos...');
+
+  await Promise.all([
+    Cliente.deleteMany(),
+    Empleado.deleteMany(),
+    Evento.deleteMany(),
+    Tarea.deleteMany(),
+  ]);
+
+  console.log('📥 Insertando datos base...');
+  const clientes = await Cliente.insertMany(clientesSeed);
+  const empleados = await Empleado.insertMany(empleadosSeed);
+  const eventos = await Evento.insertMany(eventosSeed);
+
+  const tareasSeed = [
+    // ---- Producción y Logística ----
+    {
+      titulo: 'Coordinación con proveedores',
+      descripcion: 'Gestionar catering, sonido y mobiliario del evento',
+      estado: 'pendiente',
+      prioridad: 'alta',
+      area: 'Producción y Logística',
+      tipo: 'Coordinación con proveedores',
+      horasEstimadas: 6,
+      empleadoAsignado: empleados[0]._id,
+      eventoAsignado: eventos[0]._id,
+    },
+    {
+      titulo: 'Montaje de escenario o mobiliario',
+      descripcion: 'Supervisar montaje de escenario principal y señalética',
+      estado: 'en proceso',
+      prioridad: 'media',
+      area: 'Producción y Logística',
+      tipo: 'Montaje de escenario o mobiliario',
+      horasEstimadas: 8,
+      empleadoAsignado: empleados[4]._id,
+      eventoAsignado: eventos[2]._id,
+    },
+    {
+      titulo: 'Verificación técnica previa al evento',
+      descripcion: 'Revisar iluminación, sonido y conectividad general',
+      estado: 'finalizada',
+      prioridad: 'alta',
+      area: 'Producción y Logística',
+      tipo: 'Verificación técnica previa',
+      horasEstimadas: 4,
+      empleadoAsignado: empleados[4]._id,
+      eventoAsignado: eventos[1]._id,
+    },
+    {
+      titulo: 'Supervisión de desmontaje post-evento',
+      descripcion: 'Verificar retiro de equipos y mobiliario alquilado',
+      estado: 'pendiente',
+      prioridad: 'media',
+      area: 'Producción y Logística',
+      tipo: 'Montaje de escenario o mobiliario',
+      horasEstimadas: 5,
+      empleadoAsignado: empleados[0]._id,
+      eventoAsignado: eventos[3]._id,
+    },
+
+    // ---- Planificación y Finanzas ----
+    {
+      titulo: 'Carga y control del presupuesto del evento',
+      descripcion: 'Registrar gastos y controlar desviaciones presupuestarias',
+      estado: 'finalizada',
+      prioridad: 'alta',
+      area: 'Planificación y Finanzas',
+      tipo: 'Carga y control del presupuesto del evento',
+      horasEstimadas: 5,
+      empleadoAsignado: empleados[1]._id,
+      eventoAsignado: eventos[1]._id,
+    },
+    {
+      titulo: 'Firma de contratos con clientes/proveedores',
+      descripcion: 'Revisar y firmar contratos legales y administrativos',
+      estado: 'pendiente',
+      prioridad: 'media',
+      area: 'Planificación y Finanzas',
+      tipo: 'Firma de contratos con clientes/proveedores',
+      horasEstimadas: 3,
+      empleadoAsignado: empleados[3]._id,
+      eventoAsignado: eventos[2]._id,
+    },
+    {
+      titulo: 'Seguimiento del cronograma y fechas clave',
+      descripcion: 'Controlar hitos del evento y alertar desvíos',
+      estado: 'en proceso',
+      prioridad: 'media',
+      area: 'Planificación y Finanzas',
+      tipo: 'Seguimiento del cronograma y fechas clave',
+      horasEstimadas: 4,
+      empleadoAsignado: empleados[3]._id,
+      eventoAsignado: eventos[0]._id,
+    },
+    {
+      titulo: 'Elaboración de informe financiero post-evento',
+      descripcion: 'Analizar costos reales vs estimados y elaborar informe final',
+      estado: 'pendiente',
+      prioridad: 'alta',
+      area: 'Planificación y Finanzas',
+      tipo: 'Carga y control del presupuesto del evento',
+      horasEstimadas: 4,
+      empleadoAsignado: empleados[1]._id,
+      eventoAsignado: eventos[3]._id,
+    },
+
+    // ---- Administración ----
+    {
+      titulo: 'Mantenimiento de base de datos de clientes',
+      descripcion: 'Actualizar información y contacto de clientes activos',
+      estado: 'en proceso',
+      prioridad: 'media',
+      area: 'Administración',
+      tipo: 'Gestión de usuarios del sistema',
+      horasEstimadas: 2,
+      empleadoAsignado: empleados[2]._id,
+      eventoAsignado: eventos[1]._id,
+    },
+    {
+      titulo: 'Control de permisos y accesos de usuarios',
+      descripcion: 'Revisar roles y accesos de los empleados del sistema',
+      estado: 'pendiente',
+      prioridad: 'baja',
+      area: 'Administración',
+      tipo: 'Control de permisos y accesos',
+      horasEstimadas: 3,
+      empleadoAsignado: empleados[2]._id,
+      eventoAsignado: eventos[2]._id,
+    },
+  ];
+
+  await Tarea.insertMany(tareasSeed);
+  console.log('🌿 Tareas cargadas correctamente');
+
+  await disconnectMongo();
+  console.log('🔌 Conexión cerrada con MongoDB');
+}
+
+// -------------------- EJECUCIÓN --------------------
+seedDB()
+  .then(() => process.exit(0))
+  .catch((err) => {
+    console.error('❌ Error al cargar datos:', err);
+    process.exit(1);
+  });
+
+=====================================================
+
+# Archivo: C:\Users\micae\Desktop\4to Cuatri\Back\ProyectoBack\eventify-backend\controllers\clienteController.js
+
+// controllers/clienteController.js
+// -------------------- CONTROLADOR DE CLIENTES --------------------
+import ClienteModel from '../models/ClienteModel.js';
+
+// -------------------- LISTAR TODOS LOS CLIENTES --------------------
+// GET /clientes
+async function listClientes(req, res) {
+  try {
+    const clientes = await ClienteModel.getAll();
+    res.json(clientes);
+  } catch (error) {
+    console.error('Error al listar clientes:', error);
+    res.status(500).json({ mensaje: 'Error al obtener clientes' });
+  }
+}
+
+// -------------------- OBTENER CLIENTE POR ID --------------------
+// GET /clientes/:id
+async function getCliente(req, res) {
+  try {
+    const cliente = await ClienteModel.getById(req.params.id);
+    if (!cliente) return res.status(404).json({ mensaje: 'Cliente no encontrado' });
+    res.json(cliente);
+  } catch (error) {
+    console.error('Error al obtener cliente:', error);
+    res.status(500).json({ mensaje: 'Error al obtener cliente' });
+  }
+}
+
+// -------------------- CREAR NUEVO CLIENTE --------------------
+// POST /clientes
+async function addCliente(req, res) {
+  try {
+    const cliente = req.body;
+    if (!cliente.nombre || !cliente.email) {
+      return res.status(400).json({ mensaje: 'Nombre y correo son obligatorios' });
+    }
+    const nuevoCliente = await ClienteModel.add(cliente);
+    res.status(201).json({ mensaje: 'Cliente creado', cliente: nuevoCliente });
+  } catch (error) {
+    console.error('Error al crear cliente:', error);
+    res.status(500).json({ mensaje: 'Error al crear cliente' });
+  }
+}
+
+// -------------------- ACTUALIZAR CLIENTE COMPLETO --------------------
+// PUT /clientes/:id
+async function updateCliente(req, res) {
+  try {
+    const actualizado = await ClienteModel.update(req.params.id, req.body);
+    if (!actualizado) return res.status(404).json({ mensaje: 'Cliente no encontrado' });
+    res.json({ mensaje: 'Cliente actualizado', cliente: actualizado });
+  } catch (error) {
+    console.error('Error al actualizar cliente:', error);
+    res.status(500).json({ mensaje: 'Error al actualizar cliente' });
+  }
+}
+
+// -------------------- ACTUALIZAR PARCIALMENTE CLIENTE --------------------
+// PATCH /clientes/:id
+async function patchCliente(req, res) {
+  try {
+    const actualizado = await ClienteModel.patch(req.params.id, req.body);
+    if (!actualizado) return res.status(404).json({ mensaje: 'Cliente no encontrado' });
+    res.json({ mensaje: 'Cliente actualizado parcialmente', cliente: actualizado });
+  } catch (error) {
+    console.error('Error al actualizar parcialmente cliente:', error);
+    res.status(500).json({ mensaje: 'Error al actualizar parcialmente cliente' });
+  }
+}
+
+// -------------------- ELIMINAR CLIENTE --------------------
+// DELETE /clientes/:id
+async function deleteCliente(req, res) {
+  try {
+    const eliminado = await ClienteModel.remove(req.params.id);
+    if (!eliminado) return res.status(404).json({ mensaje: 'Cliente no encontrado' });
+    res.json({ mensaje: 'Cliente eliminado', cliente: eliminado });
+  } catch (error) {
+    console.error('Error al eliminar cliente:', error);
+    res.status(500).json({ mensaje: 'Error al eliminar cliente' });
+  }
+}
+
+export default { listClientes, getCliente, addCliente, updateCliente, patchCliente, deleteCliente };
+
+=====================================================
+
+# Archivo: C:\Users\micae\Desktop\4to Cuatri\Back\ProyectoBack\eventify-backend\controllers\ClienteWebController.js
+
+// controllers/ClienteWebController.js
+import ClienteModel from '../models/ClienteModel.js';
+
+/**
+ * Listar todos los clientes y renderizar la vista index.pug
+ */
+const listClientesWeb = async (req, res) => {
+  try {
+    const clientes = await ClienteModel.getAll();
+    res.render('clientes/index', {
+      title: 'Clientes - Eventify',
+      clientes,
+      currentPath: req.baseUrl || req.path
+    });
+  } catch (error) {
+    console.error('Error al cargar clientes:', error);
+    res.status(500).render('error', { title: 'Error - Eventify', message: 'Error al cargar la lista de clientes' });
+  }
+};
+
+/**
+ * Mostrar formulario para crear un nuevo cliente
+ */
+const showNewForm = (req, res) => {
+  res.render('clientes/form', { title: 'Nuevo Cliente - Eventify', formTitle: 'Nuevo Cliente', cliente: null, formAction: '/clientes' });
+};
+
+/**
+ * Mostrar formulario para editar un cliente existente
+ */
+const showEditForm = async (req, res) => {
+  try {
+    const cliente = await ClienteModel.getById(req.params.id);
+    if (!cliente) return res.status(404).render('error', { title:'Error', message: 'Cliente no encontrado'});
+    res.render('clientes/form', { title: 'Editar Cliente - Eventify', formTitle: 'Editar Cliente', cliente, formAction: `/clientes/${cliente.id}` });
+  } catch (error) {
+    console.error(error);
+    res.status(500).render('error', { title:'Error', message: 'Error al cargar el cliente' });
+  }
+};
+
+/**
+ * Mostrar los detalles de un cliente individual
+ */
+const showCliente = async (req, res) => {
+  try {
+    const cliente = await ClienteModel.getById(req.params.id);
+    if (!cliente) return res.status(404).render('error', { title:'Error', message: 'Cliente no encontrado'});
+    res.render('clientes/show', { title: `${cliente.nombre} - Eventify`, cliente });
+  } catch (error) {
+    console.error(error);
+    res.status(500).render('error', { title:'Error', message: 'Error al cargar el cliente' });
+  }
+};
+
+/**
+ * Crear un nuevo cliente (desde formulario web)
+ */
+const createClienteWeb = async (req, res) => {
+  try {
+    await ClienteModel.add(req.body);
+    res.redirect('/clientes');
+  } catch (error) {
+    console.error(error);
+    res.status(500).render('error', { title:'Error', message: 'Error al crear el cliente' });
+  }
+};
+
+/**
+ * Actualizar un cliente existente (desde formulario web)
+ */
+const updateClienteWeb = async (req, res) => {
+  try {
+    const actualizado = await ClienteModel.update(req.params.id, req.body);
+    if (!actualizado) return res.status(404).render('error', { title:'Error', message: 'Cliente no encontrado' });
+    res.redirect('/clientes');
+  } catch (error) {
+    console.error(error);
+    res.status(500).render('error', { title:'Error', message: 'Error al actualizar el cliente' });
+  }
+};
+
+/**
+ * Eliminar un cliente (con soporte para AJAX/fetch o redirección normal)
+ */
+const deleteClienteWeb = async (req, res) => {
+  try {
+    const eliminado = await ClienteModel.remove(req.params.id);
+    if (!eliminado) return res.status(404).render('error', { title:'Error', message:'Cliente no encontrado' });
+
+    // Si la petición viene de fetch/ajax, devolver JSON
+    if (req.xhr || req.headers.accept?.includes('application/json')) {
+      return res.json({ mensaje: 'Cliente eliminado', cliente: eliminado });
+    }
+
+    // Si es desde formulario clásico, redirigir
+    res.redirect('/clientes');
+  } catch (error) {
+    console.error(error);
+    res.status(500).render('error', { title:'Error', message:'Error al eliminar el cliente' });
+  }
+};
+
+export default { listClientesWeb, showNewForm, showEditForm, showCliente, createClienteWeb, updateClienteWeb, deleteClienteWeb };
+
+=====================================================
+
+# Archivo: C:\Users\micae\Desktop\4to Cuatri\Back\ProyectoBack\eventify-backend\controllers\empleadoController.js
+
+// controllers/empleadoController.js
+
+// -------------------- CONTROLADOR DE EMPLEADOS --------------------
+import EmpleadoModel from '../models/EmpleadoModel.js';
+
+// Roles y áreas válidos para validación
+const ROLES = ['administrador', 'planner', 'coordinador'];
+const AREAS = ['Producción y Logística', 'Planificación y Finanzas', 'Atención al Cliente', 'Administración'];
+
+// -------------------- LISTAR TODOS LOS EMPLEADOS --------------------
+// GET /empleados
+async function listEmpleados(req, res) {
+  try {
+    const empleados = await EmpleadoModel.getAll();
+    res.json(empleados);
+  } catch (error) {
+    console.error('Error al listar empleados:', error);
+    res.status(500).json({ mensaje: 'Error al obtener empleados' });
+  }
+}
+
+// -------------------- OBTENER EMPLEADO POR ID --------------------
+// GET /empleados/:id
+async function getEmpleado(req, res) {
+  try {
+    const empleado = await EmpleadoModel.getById(req.params.id);
+    if (!empleado) return res.status(404).json({ mensaje: 'Empleado no encontrado' });
+    res.json(empleado);
+  } catch (error) {
+    console.error('Error al obtener empleado:', error);
+    res.status(500).json({ mensaje: 'Error al obtener empleado' });
+  }
+}
+
+// -------------------- CREAR NUEVO EMPLEADO --------------------
+// POST /empleados
+async function addEmpleado(req, res) {
+  try {
+    const empleado = req.body;
+    if (!empleado.nombre || !empleado.rol || !empleado.area) {
+      return res.status(400).json({ mensaje: 'Nombre, rol y área son obligatorios' });
+    }
+    if (!ROLES.includes(empleado.rol)) {
+      return res.status(400).json({ mensaje: 'Rol inválido' });
+    }
+    if (!AREAS.includes(empleado.area)) {
+      return res.status(400).json({ mensaje: 'Área inválida' });
+    }
+
+    const nuevoEmpleado = await EmpleadoModel.add(empleado);
+    res.status(201).json({ mensaje: 'Empleado creado', empleado: nuevoEmpleado });
+  } catch (error) {
+    console.error('Error al crear empleado:', error);
+    res.status(500).json({ mensaje: 'Error al crear empleado' });
+  }
+}
+
+// -------------------- ACTUALIZAR COMPLETAMENTE EMPLEADO --------------------
+// PUT /empleados/:id
+async function updateEmpleado(req, res) {
+  try {
+    const empleado = req.body;
+    if (empleado.rol && !ROLES.includes(empleado.rol)) {
+      return res.status(400).json({ mensaje: 'Rol inválido' });
+    }
+    if (empleado.area && !AREAS.includes(empleado.area)) {
+      return res.status(400).json({ mensaje: 'Área inválida' });
+    }
+
+    const actualizado = await EmpleadoModel.update(req.params.id, empleado);
+    if (!actualizado) return res.status(404).json({ mensaje: 'Empleado no encontrado' });
+    res.json({ mensaje: 'Empleado actualizado', empleado: actualizado });
+  } catch (error) {
+    console.error('Error al actualizar empleado:', error);
+    res.status(500).json({ mensaje: 'Error al actualizar empleado' });
+  }
+}
+
+// -------------------- ACTUALIZAR PARCIALMENTE EMPLEADO --------------------
+// PATCH /empleados/:id
+async function patchEmpleado(req, res) {
+  try {
+    const campos = req.body;
+    if (campos.rol && !ROLES.includes(campos.rol)) {
+      return res.status(400).json({ mensaje: 'Rol inválido' });
+    }
+    if (campos.area && !AREAS.includes(campos.area)) {
+      return res.status(400).json({ mensaje: 'Área inválida' });
+    }
+
+    const actualizado = await EmpleadoModel.patch(req.params.id, campos);
+    if (!actualizado) return res.status(404).json({ mensaje: 'Empleado no encontrado' });
+    res.json({ mensaje: 'Empleado actualizado parcialmente', empleado: actualizado });
+  } catch (error) {
+    console.error('Error al actualizar parcialmente empleado:', error);
+    res.status(500).json({ mensaje: 'Error al actualizar parcialmente empleado' });
+  }
+}
+
+// -------------------- ELIMINAR EMPLEADO --------------------
+// DELETE /empleados/:id
+async function deleteEmpleado(req, res) {
+  try {
+    const eliminado = await EmpleadoModel.remove(req.params.id);
+    if (!eliminado) return res.status(404).json({ mensaje: 'Empleado no encontrado' });
+    res.json({ mensaje: 'Empleado eliminado', empleado: eliminado });
+  } catch (error) {
+    console.error('Error al eliminar empleado:', error);
+    res.status(500).json({ mensaje: 'Error al eliminar empleado' });
+  }
+}
+
+export default { listEmpleados, getEmpleado, addEmpleado, updateEmpleado, patchEmpleado, deleteEmpleado };
+
+=====================================================
+
+# Archivo: C:\Users\micae\Desktop\4to Cuatri\Back\ProyectoBack\eventify-backend\controllers\eventoController.js
+
+// controllers/eventoController.js
+// -------------------- CONTROLADOR DE EVENTOS --------------------
+import EventoModel from '../models/EventoModel.js';
+
+// -------------------- LISTAR TODOS LOS EVENTOS --------------------
+// GET /eventos
+async function listEventos(req, res) {
+  try {
+    const eventos = await EventoModel.getAll();
+    res.json(eventos);
+  } catch (error) {
+    console.error('Error al listar eventos:', error);
+    res.status(500).json({ mensaje: 'Error al obtener eventos' });
+  }
+}
+
+// -------------------- OBTENER EVENTO POR ID --------------------
+// GET /eventos/:id
+async function getEvento(req, res) {
+  try {
+    const evento = await EventoModel.getById(req.params.id);
+    if (!evento) return res.status(404).json({ mensaje: 'Evento no encontrado' });
+    res.json(evento);
+  } catch (error) {
+    console.error('Error al obtener evento:', error);
+    res.status(500).json({ mensaje: 'Error al obtener evento' });
+  }
+}
+
+// -------------------- CREAR NUEVO EVENTO --------------------
+// POST /eventos
+async function addEvento(req, res) {
+  try {
+    const evento = req.body;
+    if (!evento.nombre) {
+      return res.status(400).json({ mensaje: 'El nombre del evento es obligatorio' });
+    }
+
+    const nuevoEvento = await EventoModel.add(evento);
+    res.status(201).json({ mensaje: 'Evento creado', evento: nuevoEvento });
+  } catch (error) {
+    console.error('Error al crear evento:', error);
+    res.status(500).json({ mensaje: 'Error al crear evento' });
+  }
+}
+
+// -------------------- ACTUALIZAR COMPLETAMENTE EVENTO --------------------
+// PUT /eventos/:id
+async function updateEvento(req, res) {
+  try {
+    const actualizado = await EventoModel.update(req.params.id, req.body);
+    if (!actualizado) return res.status(404).json({ mensaje: 'Evento no encontrado' });
+    res.json({ mensaje: 'Evento actualizado', evento: actualizado });
+  } catch (error) {
+    console.error('Error al actualizar evento:', error);
+    res.status(500).json({ mensaje: 'Error al actualizar evento' });
+  }
+}
+
+// -------------------- ACTUALIZAR PARCIALMENTE EVENTO --------------------
+// PATCH /eventos/:id
+async function patchEvento(req, res) {
+  try {
+    const actualizado = await EventoModel.patch(req.params.id, req.body);
+    if (!actualizado) return res.status(404).json({ mensaje: 'Evento no encontrado' });
+    res.json({ mensaje: 'Evento actualizado parcialmente', evento: actualizado });
+  } catch (error) {
+    console.error('Error al actualizar parcialmente evento:', error);
+    res.status(500).json({ mensaje: 'Error al actualizar parcialmente evento' });
+  }
+}
+
+// -------------------- ELIMINAR EVENTO --------------------
+// DELETE /eventos/:id
+async function deleteEvento(req, res) {
+  try {
+    const eliminado = await EventoModel.remove(req.params.id);
+    if (!eliminado) return res.status(404).json({ mensaje: 'Evento no encontrado' });
+    res.json({ mensaje: 'Evento eliminado', evento: eliminado });
+  } catch (error) {
+    console.error('Error al eliminar evento:', error);
+    res.status(500).json({ mensaje: 'Error al eliminar evento' });
+  }
+}
+
+export default { listEventos, getEvento, addEvento, updateEvento, patchEvento, deleteEvento };
+
+
+
+
+=====================================================
+
+# Archivo: C:\Users\micae\Desktop\4to Cuatri\Back\ProyectoBack\eventify-backend\controllers\tareaController.js
+
+// controllers/tareaController.js
+// -------------------- CONTROLADOR DE TAREAS --------------------
+import TareaModel from '../models/TareaModel.js';
+
+// -------------------- ÁREAS Y TIPOS DE TAREAS --------------------
+const AREAS = {
+  "Producción y Logística": [
+    "Coordinación con proveedores",
+    "Montaje de escenario o mobiliario",
+    "Verificación técnica previa al evento"
+  ],
+  "Planificación y Finanzas": [
+    "Carga y control del presupuesto del evento",
+    "Firma de contratos con clientes/proveedores",
+    "Seguimiento del cronograma y fechas clave"
+  ]
+};
+
+// -------------------- LISTAR Y FILTRAR TAREAS --------------------
+async function listTareas(req, res) {
+  try {
+    const { estado, prioridad, fechaInicio, fechaFin, empleadoAsignado, eventoAsignado } = req.query;
+    let tareas = await TareaModel.getAll();
+
+    if (estado) tareas = tareas.filter(t => t.estado === estado);
+    if (prioridad) tareas = tareas.filter(t => t.prioridad === prioridad);
+    if (empleadoAsignado) tareas = tareas.filter(t => String(t.empleadoAsignado?._id) === String(empleadoAsignado));
+    if (eventoAsignado) tareas = tareas.filter(t => String(t.eventoAsignado?._id) === String(eventoAsignado));
+
+    if (fechaInicio && fechaFin) {
+      const inicio = new Date(fechaInicio);
+      const fin = new Date(fechaFin);
+      tareas = tareas.filter(t => t.fechaInicio && t.fechaFin && t.fechaInicio >= inicio && t.fechaFin <= fin);
+    }
+
+    res.json(tareas);
+  } catch (error) {
+    console.error('Error al listar tareas:', error);
+    res.status(500).json({ mensaje: 'Error al obtener tareas' });
+  }
+}
+
+// -------------------- OBTENER UNA TAREA POR ID --------------------
+async function getTarea(req, res) {
+  try {
+    const tarea = await TareaModel.getById(req.params.id);
+    if (!tarea) return res.status(404).json({ mensaje: 'Tarea no encontrada' });
+    res.json(tarea);
+  } catch (error) {
+    console.error('Error al obtener tarea:', error);
+    res.status(500).json({ mensaje: 'Error al obtener tarea' });
+  }
+}
+
+// -------------------- CREAR NUEVA TAREA --------------------
+async function addTarea(req, res) {
+  try {
+    const tarea = req.body;
+    if (tarea.area && tarea.tipo) {
+      const tipos = AREAS[tarea.area];
+      if (!tipos || !tipos.includes(tarea.tipo)) {
+        return res.status(400).json({ mensaje: `Tarea inválida para el área ${tarea.area}` });
+      }
+    }
+
+    const nuevaTarea = await TareaModel.add(tarea);
+    res.status(201).json({ mensaje: 'Tarea creada', tarea: nuevaTarea });
+  } catch (error) {
+    console.error('Error al crear tarea:', error);
+    res.status(500).json({ mensaje: 'Error al crear tarea' });
+  }
+}
+
+// -------------------- ACTUALIZAR COMPLETAMENTE (PUT) --------------------
+async function updateTarea(req, res) {
+  try {
+    const tarea = req.body;
+    const id = req.params.id;
+    if (tarea.area && tarea.tipo) {
+      const tipos = AREAS[tarea.area];
+      if (!tipos || !tipos.includes(tarea.tipo)) {
+        return res.status(400).json({ mensaje: `Tarea inválida para el área ${tarea.area}` });
+      }
+    }
+    const actualizada = await TareaModel.update(id, tarea);
+    if (!actualizada) return res.status(404).json({ mensaje: 'Tarea no encontrada' });
+    res.json({ mensaje: 'Tarea actualizada', tarea: actualizada });
+  } catch (error) {
+    console.error('Error al actualizar tarea:', error);
+    res.status(500).json({ mensaje: 'Error al actualizar tarea' });
+  }
+}
+
+// -------------------- ACTUALIZAR PARCIALMENTE (PATCH) --------------------
+async function patchTarea(req, res) {
+  try {
+    const campos = req.body;
+    const id = req.params.id;
+    if (campos.area && campos.tipo) {
+      const tipos = AREAS[campos.area];
+      if (!tipos || !tipos.includes(campos.tipo)) {
+        return res.status(400).json({ mensaje: `Tarea inválida para el área ${campos.area}` });
+      }
+    }
+    const actualizada = await TareaModel.patch(id, campos);
+    if (!actualizada) return res.status(404).json({ mensaje: 'Tarea no encontrada' });
+    res.json({ mensaje: 'Tarea actualizada parcialmente', tarea: actualizada });
+  } catch (error) {
+    console.error('Error al actualizar tarea parcialmente:', error);
+    res.status(500).json({ mensaje: 'Error al actualizar tarea parcialmente' });
+  }
+}
+
+// -------------------- ELIMINAR TAREA --------------------
+async function deleteTarea(req, res) {
+  try {
+    const eliminada = await TareaModel.remove(req.params.id);
+    if (!eliminada) return res.status(404).json({ mensaje: 'Tarea no encontrada' });
+    res.json({ mensaje: 'Tarea eliminada', tarea: eliminada });
+  } catch (error) {
+    console.error('Error al eliminar tarea:', error);
+    res.status(500).json({ mensaje: 'Error al eliminar tarea' });
+  }
+}
+
+export default { listTareas, getTarea, addTarea, updateTarea, patchTarea, deleteTarea };
+
+=====================================================
+
+# Archivo: C:\Users\micae\Desktop\4to Cuatri\Back\ProyectoBack\eventify-backend\db\mongoose.js
+
+// db/mongoose.js
+import mongoose from 'mongoose';
+
+export async function connectMongo(uri) {
+  if (!uri) throw new Error('❌ Falta MONGODB_URI en el .env');
+
+  try {
+    mongoose.set('strictQuery', true);
+    await mongoose.connect(uri, {
+      serverSelectionTimeoutMS: 10000,
+    });
+
+    const dbName = mongoose.connection.name;
+    console.log(`✅ Conectado a MongoDB (${dbName})`);
+
+    // Escuchar eventos del estado de la conexión
+    mongoose.connection.on('disconnected', () => {
+      console.warn('⚠️  Se perdió la conexión con MongoDB');
+    });
+
+    mongoose.connection.on('reconnected', () => {
+      console.log('🔁 Reconectado a MongoDB');
+    });
+  } catch (error) {
+    console.error('❌ Error al conectar con MongoDB:', error.message);
+    process.exit(1);
+  }
+}
+
+export async function disconnectMongo() {
+  try {
+    await mongoose.disconnect();
+    console.log('🛑 Conexión con MongoDB cerrada');
+  } catch (error) {
+    console.error('❌ Error al desconectarse de MongoDB:', error.message);
+  }
+}
+
+=====================================================
+
+# Archivo: C:\Users\micae\Desktop\4to Cuatri\Back\ProyectoBack\eventify-backend\models\ClienteModel.js
+
+//
+// -------------------- MODELO DE CLIENTE --------------------
+import mongoose from 'mongoose';
+
+// -------------------- CONFIGURACIÓN DEL ESQUEMA --------------------
+// Define la estructura de los documentos en la colección "clientes".
+const ClienteSchema = new mongoose.Schema(
+  {
+    nombre: { type: String, required: true, trim: true },
+    email: { type: String, required: true, lowercase: true, trim: true },
+    telefono: { type: String, trim: true },
+    empresa: { type: String, trim: true },
+    notas: { type: String, trim: true },
+  },
+  { timestamps: true }
+);
+
+// -------------------- MODELO --------------------
+const Cliente = mongoose.models.Cliente || mongoose.model('Cliente', ClienteSchema);
+
+// -------------------- FUNCIÓN AUXILIAR --------------------
+function toPlain(doc) {
+  if (!doc) return null;
+  const obj = doc.toObject({ versionKey: false });
+  obj.id = String(obj._id);
+  return obj;
+}
+
+// -------------------- CRUD --------------------
+class ClienteModel {
+  async getAll() {
+    try {
+      const clientes = await Cliente.find().sort({ createdAt: -1 });
+      return clientes.map(toPlain);
+    } catch (error) {
+      console.error('Error al obtener los clientes:', error);
+      return [];
+    }
+  }
+
+  async getById(id) {
+    if (!mongoose.isValidObjectId(id)) return null;
+    try {
+      const cliente = await Cliente.findById(id);
+      return toPlain(cliente);
+    } catch (error) {
+      console.error('Error al obtener cliente por ID:', error);
+      return null;
+    }
+  }
+
+  async add(cliente) {
+    try {
+      const nuevo = await Cliente.create({
+        nombre: cliente.nombre,
+        email: cliente.email,
+        telefono: cliente.telefono || '',
+        empresa: cliente.empresa || '',
+        notas: cliente.notas || '',
+      });
+      return toPlain(nuevo);
+    } catch (error) {
+      console.error('Error al agregar cliente:', error);
+      return null;
+    }
+  }
+
+  async update(id, cliente) {
+    if (!mongoose.isValidObjectId(id)) return null;
+    try {
+      const actualizado = await Cliente.findByIdAndUpdate(id, cliente, {
+        new: true,
+        runValidators: true,
+      });
+      return actualizado ? toPlain(actualizado) : null;
+    } catch (error) {
+      console.error('Error al actualizar cliente:', error);
+      return null;
+    }
+  }
+
+  async patch(id, campos) {
+    if (!mongoose.isValidObjectId(id)) return null;
+    try {
+      const actualizado = await Cliente.findByIdAndUpdate(
+        id,
+        { $set: campos },
+        { new: true, runValidators: true }
+      );
+      return actualizado ? toPlain(actualizado) : null;
+    } catch (error) {
+      console.error('Error al actualizar parcialmente cliente:', error);
+      return null;
+    }
+  }
+
+  async remove(id) {
+    if (!mongoose.isValidObjectId(id)) return null;
+    try {
+      const eliminado = await Cliente.findByIdAndDelete(id);
+      return eliminado ? toPlain(eliminado) : null;
+    } catch (error) {
+      console.error('Error al eliminar cliente:', error);
+      return null;
+    }
+  }
+}
+
+export default new ClienteModel();
+
+=====================================================
+
+# Archivo: C:\Users\micae\Desktop\4to Cuatri\Back\ProyectoBack\eventify-backend\models\EmpleadoModel.js
+
+//
+// -------------------- MODELO DE EMPLEADO --------------------
+import mongoose from 'mongoose';
+
+// -------------------- CONFIGURACIÓN DEL ESQUEMA --------------------
+const EmpleadoSchema = new mongoose.Schema(
+  {
+    nombre: { type: String, required: true, trim: true },
+    rol: {
+      type: String,
+      enum: ['administrador', 'planner', 'coordinador'],
+      required: true,
+    },
+    area: {
+      type: String,
+      enum: ['Producción y Logística', 'Planificación y Finanzas', 'Atención al Cliente', 'Administración'],
+      required: true,
+    },
+    email: { type: String, lowercase: true, trim: true },
+    telefono: { type: String, trim: true },
+  },
+  { timestamps: true }
+);
+
+// -------------------- MODELO --------------------
+const Empleado = mongoose.models.Empleado || mongoose.model('Empleado', EmpleadoSchema);
+
+// -------------------- FUNCIÓN AUXILIAR --------------------
+function toPlain(doc) {
+  if (!doc) return null;
+  const obj = doc.toObject({ versionKey: false });
+  obj.id = String(obj._id);
+  return obj;
+}
+
+// -------------------- CRUD --------------------
+class EmpleadoModel {
+  async getAll() {
+    try {
+      const empleados = await Empleado.find().sort({ createdAt: -1 });
+      return empleados.map(toPlain);
+    } catch (error) {
+      console.error('Error al obtener los empleados:', error);
+      return [];
+    }
+  }
+
+  async getById(id) {
+    if (!mongoose.isValidObjectId(id)) return null;
+    try {
+      const empleado = await Empleado.findById(id);
+      return toPlain(empleado);
+    } catch (error) {
+      console.error('Error al obtener empleado por ID:', error);
+      return null;
+    }
+  }
+
+  async add(empleado) {
+    try {
+      const nuevo = await Empleado.create({
+        nombre: empleado.nombre,
+        rol: empleado.rol,
+        area: empleado.area,
+        email: empleado.email || '',
+        telefono: empleado.telefono || '',
+      });
+      return toPlain(nuevo);
+    } catch (error) {
+      console.error('Error al agregar empleado:', error);
+      return null;
+    }
+  }
+
+  async update(id, empleado) {
+    if (!mongoose.isValidObjectId(id)) return null;
+    try {
+      const actualizado = await Empleado.findByIdAndUpdate(id, empleado, {
+        new: true,
+        runValidators: true,
+      });
+      return actualizado ? toPlain(actualizado) : null;
+    } catch (error) {
+      console.error('Error al actualizar empleado:', error);
+      return null;
+    }
+  }
+
+  async patch(id, campos) {
+    if (!mongoose.isValidObjectId(id)) return null;
+    try {
+      const actualizado = await Empleado.findByIdAndUpdate(
+        id,
+        { $set: campos },
+        { new: true, runValidators: true }
+      );
+      return actualizado ? toPlain(actualizado) : null;
+    } catch (error) {
+      console.error('Error al actualizar parcialmente empleado:', error);
+      return null;
+    }
+  }
+
+  async remove(id) {
+    if (!mongoose.isValidObjectId(id)) return null;
+    try {
+      const eliminado = await Empleado.findByIdAndDelete(id);
+      return eliminado ? toPlain(eliminado) : null;
+    } catch (error) {
+      console.error('Error al eliminar empleado:', error);
+      return null;
+    }
+  }
+}
+
+export default new EmpleadoModel();
+
+=====================================================
+
+# Archivo: C:\Users\micae\Desktop\4to Cuatri\Back\ProyectoBack\eventify-backend\models\EventoModel.js
+
+//
+// -------------------- MODELO DE EVENTO --------------------
+import mongoose from 'mongoose';
+
+// -------------------- CONFIGURACIÓN DEL ESQUEMA --------------------
+const EventoSchema = new mongoose.Schema(
+  {
+    nombre: { type: String, required: true, trim: true },
+    descripcion: { type: String, trim: true },
+    fechaInicio: { type: Date },
+    fechaFin: { type: Date },
+    lugar: { type: String, trim: true },
+    presupuesto: { type: Number, default: 0 },
+  },
+  { timestamps: true }
+);
+
+// -------------------- MODELO --------------------
+const Evento = mongoose.models.Evento || mongoose.model('Evento', EventoSchema);
+
+// -------------------- FUNCIÓN AUXILIAR --------------------
+function toPlain(doc) {
+  if (!doc) return null;
+  const obj = doc.toObject({ versionKey: false });
+  obj.id = String(obj._id);
+  return obj;
+}
+
+// -------------------- CRUD --------------------
+class EventoModel {
+  async getAll() {
+    try {
+      const eventos = await Evento.find().sort({ createdAt: -1 });
+      return eventos.map(toPlain);
+    } catch (error) {
+      console.error('Error al obtener los eventos:', error);
+      return [];
+    }
+  }
+
+  async getById(id) {
+    if (!mongoose.isValidObjectId(id)) return null;
+    try {
+      const evento = await Evento.findById(id);
+      return toPlain(evento);
+    } catch (error) {
+      console.error('Error al obtener evento por ID:', error);
+      return null;
+    }
+  }
+
+  async add(evento) {
+    try {
+      const nuevo = await Evento.create({
+        nombre: evento.nombre,
+        descripcion: evento.descripcion || '',
+        fechaInicio: evento.fechaInicio || null,
+        fechaFin: evento.fechaFin || null,
+        lugar: evento.lugar || '',
+        presupuesto: Number(evento.presupuesto) || 0,
+      });
+      return toPlain(nuevo);
+    } catch (error) {
+      console.error('Error al agregar evento:', error);
+      return null;
+    }
+  }
+
+  async update(id, evento) {
+    if (!mongoose.isValidObjectId(id)) return null;
+    try {
+      const actualizado = await Evento.findByIdAndUpdate(id, evento, {
+        new: true,
+        runValidators: true,
+      });
+      return actualizado ? toPlain(actualizado) : null;
+    } catch (error) {
+      console.error('Error al actualizar evento:', error);
+      return null;
+    }
+  }
+
+  async patch(id, campos) {
+    if (!mongoose.isValidObjectId(id)) return null;
+    try {
+      const actualizado = await Evento.findByIdAndUpdate(
+        id,
+        { $set: campos },
+        { new: true, runValidators: true }
+      );
+      return actualizado ? toPlain(actualizado) : null;
+    } catch (error) {
+      console.error('Error al actualizar parcialmente evento:', error);
+      return null;
+    }
+  }
+
+  async remove(id) {
+    if (!mongoose.isValidObjectId(id)) return null;
+    try {
+      const eliminado = await Evento.findByIdAndDelete(id);
+      return eliminado ? toPlain(eliminado) : null;
+    } catch (error) {
+      console.error('Error al eliminar evento:', error);
+      return null;
+    }
+  }
+}
+
+export default new EventoModel();
+
+
+
+
+=====================================================
+
+# Archivo: C:\Users\micae\Desktop\4to Cuatri\Back\ProyectoBack\eventify-backend\models\TareaModel.js
+
+//
+// -------------------- MODELO DE TAREA --------------------
+import mongoose from 'mongoose';
+
+// -------------------- CONFIGURACIÓN DEL ESQUEMA --------------------
+// Define la estructura de los documentos en la colección "tareas".
+const TareaSchema = new mongoose.Schema(
+  {
+    titulo: { type: String, required: true, trim: true },
+    descripcion: { type: String, trim: true },
+    estado: {
+      type: String,
+      enum: ['pendiente', 'en proceso', 'finalizada'],
+      default: 'pendiente',
+    },
+    fechaInicio: { type: Date },
+    fechaFin: { type: Date },
+    prioridad: {
+      type: String,
+      enum: ['baja', 'media', 'alta'],
+      default: 'media',
+    },
+    area: {
+      type: String,
+      enum: ['Producción y Logística', 'Planificación y Finanzas'],
+      required: true,
+    },
+    tipo: { type: String, trim: true, required: true },
+    empleadoAsignado: { type: mongoose.Schema.Types.ObjectId, ref: 'Empleado' },
+    eventoAsignado: { type: mongoose.Schema.Types.ObjectId, ref: 'Evento' },
+    horasEstimadas: { type: Number, default: 0 },
+    horasReales: { type: Number, default: 0 },
+  },
+  { timestamps: true }
+);
+
+// -------------------- MODELO --------------------
+const Tarea = mongoose.models.Tarea || mongoose.model('Tarea', TareaSchema);
+
+// -------------------- FUNCIÓN AUXILIAR --------------------
+function toPlain(doc) {
+  if (!doc) return null;
+  const obj = doc.toObject({ versionKey: false });
+  obj.id = String(obj._id);
+  return obj;
+}
+
+// -------------------- CRUD --------------------
+class TareaModel {
+  async getAll() {
+    try {
+      const tareas = await Tarea.find()
+        .sort({ createdAt: -1 })
+        .populate('empleadoAsignado', 'nombre rol area email')
+        .populate('eventoAsignado', 'nombre lugar descripcion');
+      return tareas.map(toPlain);
+    } catch (error) {
+      console.error('Error al obtener las tareas:', error);
+      return [];
+    }
+  }
+
+  async getById(id) {
+    if (!mongoose.isValidObjectId(id)) return null;
+    try {
+      const tarea = await Tarea.findById(id)
+        .populate('empleadoAsignado', 'nombre rol area email')
+        .populate('eventoAsignado', 'nombre lugar descripcion');
+      return toPlain(tarea);
+    } catch (error) {
+      console.error('Error al obtener tarea por ID:', error);
+      return null;
+    }
+  }
+
+  async add(tarea) {
+    try {
+      const nueva = await Tarea.create({
+        titulo: tarea.titulo,
+        descripcion: tarea.descripcion || '',
+        estado: tarea.estado || 'pendiente',
+        fechaInicio: tarea.fechaInicio || null,
+        fechaFin: tarea.fechaFin || null,
+        prioridad: tarea.prioridad || 'media',
+        area: tarea.area,
+        tipo: tarea.tipo,
+        empleadoAsignado: tarea.empleadoAsignado || null,
+        eventoAsignado: tarea.eventoAsignado || null,
+        horasEstimadas: Number(tarea.horasEstimadas) || 0,
+        horasReales: Number(tarea.horasReales) || 0,
+      });
+      return toPlain(nueva);
+    } catch (error) {
+      console.error('Error al agregar tarea:', error);
+      return null;
+    }
+  }
+
+  async update(id, tarea) {
+    if (!mongoose.isValidObjectId(id)) return null;
+    try {
+      const actualizado = await Tarea.findByIdAndUpdate(id, tarea, {
+        new: true,
+        runValidators: true,
+      });
+      return actualizado ? toPlain(actualizado) : null;
+    } catch (error) {
+      console.error('Error al actualizar tarea:', error);
+      return null;
+    }
+  }
+
+  async patch(id, campos) {
+    if (!mongoose.isValidObjectId(id)) return null;
+    try {
+      const actualizado = await Tarea.findByIdAndUpdate(
+        id,
+        { $set: campos },
+        { new: true, runValidators: true }
+      );
+      return actualizado ? toPlain(actualizado) : null;
+    } catch (error) {
+      console.error('Error al actualizar parcialmente tarea:', error);
+      return null;
+    }
+  }
+
+  async remove(id) {
+    if (!mongoose.isValidObjectId(id)) return null;
+    try {
+      const eliminado = await Tarea.findByIdAndDelete(id);
+      return eliminado ? toPlain(eliminado) : null;
+    } catch (error) {
+      console.error('Error al eliminar tarea:', error);
+      return null;
+    }
+  }
+}
+
+export default new TareaModel();
+
+=====================================================
+
+# Archivo: C:\Users\micae\Desktop\4to Cuatri\Back\ProyectoBack\eventify-backend\publics\css\styles.css
+
+/* public/css/style.css */
+html, body {
+  height: 100%;
+  margin: 0;
+  display: flex;
+  flex-direction: column;
+}
+
+.main-wrapper {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+}
+
+.sidebar {
+  min-height: 100vh;
+  background-color: #f8f9fa;
+  border-right: 1px solid #dee2e6;
+}
+
+.nav-link {
+  color: #495057;
+  border-radius: 0.375rem;
+  margin: 0.125rem 0;
+}
+
+.nav-link:hover, .nav-link.active {
+  background-color: #e9ecef;
+  color: #0d6efd;
+}
+
+.main-content {
+  background-color: #ffffff;
+}
+
+.avatar-placeholder {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-weight: bold;
+}
+
+.hero-section {
+  background: linear-gradient(135deg, #6a11cb 0%, #2575fc 100%);
+}
+
+=====================================================
+
+# Archivo: C:\Users\micae\Desktop\4to Cuatri\Back\ProyectoBack\eventify-backend\routes\clienteRoutes.js
+
+//
+import express from 'express';
+import clienteController from '../controllers/clienteController.js';
+
+const router = express.Router();
+
+router.get('/', clienteController.listClientes);// LISTAR todos los clientes
+router.get('/:id', clienteController.getCliente);// OBTENER un cliente por ID
+router.post('/', clienteController.addCliente);// CREAR un nuevo cliente
+router.put('/:id', clienteController.updateCliente);// REEMPLAZAR un cliente completo
+router.patch('/:id', clienteController.patchCliente);// ACTUALIZAR parcialmente un cliente
+router.delete('/:id', clienteController.deleteCliente);// ELIMINAR un cliente
+
+export default router;
+
+=====================================================
+
+# Archivo: C:\Users\micae\Desktop\4to Cuatri\Back\ProyectoBack\eventify-backend\routes\clienteWebRoutes.js
+
+// routes/clienteWebRoutes.js
+import express from 'express';
+import ClienteWebController from '../controllers/ClienteWebController.js';
+
+const router = express.Router();
+
+router.get('/', ClienteWebController.listClientesWeb);       // /clientes
+router.get('/nuevo', ClienteWebController.showNewForm);      // /clientes/nuevo
+router.get('/editar/:id', ClienteWebController.showEditForm);// /clientes/editar/:id
+router.get('/:id', ClienteWebController.showCliente);        // /clientes/:id
+
+router.post('/', ClienteWebController.createClienteWeb);     // crear
+router.put('/:id', ClienteWebController.updateClienteWeb);   // editar
+router.delete('/:id', ClienteWebController.deleteClienteWeb);// eliminar
+
+export default router;
+
+=====================================================
+
+# Archivo: C:\Users\micae\Desktop\4to Cuatri\Back\ProyectoBack\eventify-backend\routes\empleadoRoutes.js
+
+// routes/empleadoRoutes.js
+import express from 'express';
+import empleadoController from '../controllers/empleadoController.js';
+
+const router = express.Router();
+
+router.get('/', empleadoController.listEmpleados);// LISTAR todos los empleados
+router.get('/:id', empleadoController.getEmpleado);// OBTENER empleado por ID
+router.post('/', empleadoController.addEmpleado);// CREAR un nuevo empleado
+router.put('/:id', empleadoController.updateEmpleado);// REEMPLAZAR un empleado completo
+router.patch('/:id', empleadoController.patchEmpleado);// ACTUALIZAR parcialmente un empleado
+router.delete('/:id', empleadoController.deleteEmpleado);// ELIMINAR un empleado
+
+export default router;
+
+
+
+
+=====================================================
+
+# Archivo: C:\Users\micae\Desktop\4to Cuatri\Back\ProyectoBack\eventify-backend\routes\eventoRoutes.js
+
+// routes/eventoRoutes.js
+import express from 'express';
+import eventoController from '../controllers/eventoController.js';
+
+const router = express.Router();
+
+router.get('/', eventoController.listEventos);// LISTAR todos los eventos
+router.get('/:id', eventoController.getEvento);// OBTENER un evento por ID
+router.post('/', eventoController.addEvento);// CREAR un nuevo evento
+router.put('/:id', eventoController.updateEvento);// REEMPLAZAR un evento completo
+router.patch('/:id', eventoController.patchEvento);// ACTUALIZAR parcialmente un evento
+router.delete('/:id', eventoController.deleteEvento);// ELIMINAR un evento
+
+export default router;
+
+
+=====================================================
+
+# Archivo: C:\Users\micae\Desktop\4to Cuatri\Back\ProyectoBack\eventify-backend\routes\tareaRoutes.js
+
+// routes/tareaRoutes.js
+import express from 'express';
+import tareaController from '../controllers/tareaController.js';
+
+const router = express.Router();
+
+router.get('/', tareaController.listTareas);// LISTAR todas las tareas y filtrarlas
+router.get('/:id', tareaController.getTarea);// OBTENER tarea por ID
+router.post('/', tareaController.addTarea);// CREAR nueva tarea
+router.put('/:id', tareaController.updateTarea);// REEMPLAZAR tarea completa
+router.patch('/:id', tareaController.patchTarea);// ACTUALIZAR parcial de tarea
+router.delete('/:id', tareaController.deleteTarea);// ELIMINAR tarea
+
+export default router;
+
+
+
+=====================================================
+
+# Archivo: C:\Users\micae\Desktop\4to Cuatri\Back\ProyectoBack\eventify-backend\views\index.pug
+
+//- views/index.pug
+extends layout/layout
+
+block content
+  .hero-section.bg-primary.text-white.py-5
+    .container
+      .row.align-items-center
+        .col-lg-6
+          h1.display-4.fw-bold Eventify - Sistema de Gestión
+          p.lead Plataforma integral para la gestión de eventos
+          a.btn.btn-light.btn-lg.mt-3(href="/clientes") 
+            i.bi.bi-arrow-right-circle.me-2
+            | Comenzar ahora
+        .col-lg-6
+          img.img-fluid.rounded(src="https://images.unsplash.com/photo-1511795409834-ef04bbd61622?ixlib=rb-4.0.3&auto=format&fit=crop&w=600&q=80", alt="Sistema de gestión de eventos")
+
+  .container.my-5
+    .row.text-center
+      each module in [{name: 'Clientes', icon: 'people-fill', route: '/clientes', color: 'primary'}, {name: 'Eventos', icon: 'calendar-event', route: '/eventos', color: 'success'}, {name: 'Empleados', icon: 'person-badge', route: '/empleados', color: 'warning'}, {name: 'Tareas', icon: 'list-task', route: '/tareas', color: 'info'}]
+        .col-md-3.mb-4
+          .card.h-100.text-center
+            .card-body
+              i.bi(class=`bi-${module.icon} fs-1 text-${module.color} mb-3`)
+              h4.card-title= module.name
+              a.btn(class=`btn-outline-${module.color}`, href=module.route) Administrar
+
+=====================================================
+
+# Archivo: C:\Users\micae\Desktop\4to Cuatri\Back\ProyectoBack\eventify-backend\views\clientes\form.pug
+
+//- views/clientes/form.pug
+extends ../layout/layout
+
+block content
+  .container.mt-4
+    .row.justify-content-center
+      .col-md-8
+        .card
+          .card-header
+            h3= formTitle || 'Formulario de Cliente'
+          .card-body
+            form(method="POST", action=formAction)
+              .row
+                .col-md-6
+                  .mb-3
+                    label.form-label(for="nombre") Nombre *
+                    input.form-control#nombre(type="text", name="nombre", value=cliente ? cliente.nombre : '', required)
+                .col-md-6
+                  .mb-3
+                    label.form-label(for="empresa") Empresa
+                    input.form-control#empresa(type="text", name="empresa", value=cliente ? cliente.empresa : '')
+              
+              .row
+                .col-md-6
+                  .mb-3
+                    label.form-label(for="email") Email *
+                    input.form-control#email(type="email", name="email", value=cliente ? cliente.email : '', required)
+                .col-md-6
+                  .mb-3
+                    label.form-label(for="telefono") Teléfono
+                    input.form-control#telefono(type="tel", name="telefono", value=cliente ? cliente.telefono : '')
+              
+              .mb-3
+                label.form-label(for="tipo") Tipo de cliente
+                select.form-select#tipo(name="tipo")
+                  option(value="individual", selected=(cliente && cliente.tipo === 'individual')) Individual
+                  option(value="empresa", selected=(cliente && cliente.tipo === 'empresa')) Empresa
+              
+              .d-flex.gap-2
+                button.btn.btn-primary(type="submit")
+                  i.bi.bi-check-circle.me-2
+                  = cliente ? 'Actualizar' : 'Crear'
+                a.btn.btn-secondary(href="/clientes")
+                  i.bi.bi-arrow-left.me-2
+                  | Cancelar
+
+=====================================================
+
+# Archivo: C:\Users\micae\Desktop\4to Cuatri\Back\ProyectoBack\eventify-backend\views\clientes\index.pug
+
+//- views/clientes/index.pug
+extends ../layout/layout
+
+block content
+  .d-flex.justify-content-between.align-items-center.mb-4
+    div
+      h1 
+        i.bi.bi-people-fill.me-2
+        | Gestión de Clientes
+      p.text-muted Administra tu cartera de clientes
+    a.btn.btn-primary(href="/clientes/nuevo")
+      i.bi.bi-plus-circle.me-2
+      | Nuevo Cliente
+
+  //- Filtros y búsqueda
+  .card.mb-4
+    .card-body
+      .row
+        .col-md-8
+          .input-group
+            input.form-control(type="text", placeholder="Buscar cliente...", id="searchInput")
+            button.btn.btn-outline-primary(type="button", id="searchBtn")
+              i.bi.bi-search.me-2
+              | Buscar
+        .col-md-4
+          select.form-select#filterType
+            option(value="all") Todos los tipos
+            option(value="empresa") Empresas
+            option(value="individual") Individuales
+
+  //- Tabla de clientes
+  .card
+    .card-body
+      if clientes && clientes.length > 0
+        .table-responsive
+          table.table.table-hover
+            thead.table-dark
+              tr
+                th ID
+                th Nombre
+                th Empresa
+                th Contacto
+                th Tipo
+                th Acciones
+            tbody
+              each cliente in clientes
+                tr
+                  td= cliente.id
+                  td= cliente.nombre
+                  td= cliente.empresa || 'Sin empresa'
+                  td
+                    div= cliente.email
+                    small.text-muted= cliente.telefono || 'Sin teléfono'
+                  td
+                    span.badge(class=cliente.tipo === 'empresa' ? 'bg-primary' : 'bg-success')= cliente.tipo
+                  td
+                    .btn-group
+                      a.btn.btn-sm.btn-outline-primary(href=`/clientes/${cliente.id}`)
+                        i.bi.bi-eye
+                      a.btn.btn-sm.btn-outline-secondary(href=`/clientes/editar/${cliente.id}`)
+                        i.bi.bi-pencil
+                      button.btn.btn-sm.btn-outline-danger(type="button", onclick=`confirmDelete(${cliente.id})`)
+                        i.bi.bi-trash
+      else
+        .text-center.py-5
+          i.bi.bi-people.fs-1.text-muted
+          p.mt-3 No hay clientes registrados
+          a.btn.btn-primary(href="/clientes/nuevo") Agregar primer cliente
+
+block scripts
+  script.
+    function confirmDelete(id) {
+      if (confirm('¿Estás seguro de eliminar este cliente?')) {
+        fetch(`/api/clientes/${id}`, { method: 'DELETE' })
+          .then(response => response.json())
+          .then(data => {
+            if (data.mensaje) {
+              alert(data.mensaje);
+              location.reload();
+            }
+          })
+          .catch(error => console.error('Error:', error));
+      }
+    }
+    
+
+=====================================================
+
+# Archivo: C:\Users\micae\Desktop\4to Cuatri\Back\ProyectoBack\eventify-backend\views\clientes\show.pug
+
+//- views/clientes/show.pug
+extends ../layout/layout
+
+block content
+  .row.justify-content-center
+    .col-lg-8
+      .card
+        .card-header.d-flex.justify-content-between.align-items-center
+          h3.mb-0
+            i.bi.bi-person.me-2
+            | Detalle del Cliente
+          .btn-group
+            a.btn.btn-outline-secondary(href="/clientes/editar/" + cliente.id)
+              i.bi.bi-pencil.me-2
+              | Editar
+            a.btn.btn-outline-primary(href="/clientes")
+              i.bi.bi-arrow-left.me-2
+              | Volver
+        
+        .card-body
+          .row
+            .col-md-3.text-center
+              .avatar-placeholder.bg-primary.text-white.rounded-circle.mx-auto.mb-3(style="width: 80px; height: 80px; line-height: 80px; font-size: 2rem;")
+                i.bi.bi-person
+              h5= cliente.nombre
+              span.badge(class=cliente.tipo === 'empresa' ? 'bg-primary' : 'bg-success')= cliente.tipo
+            
+            .col-md-9
+              .row
+                .col-md-6
+                  h6 Información de contacto
+                  p
+                    strong Email: 
+                    br
+                    = cliente.email
+                  if cliente.telefono
+                    p
+                      strong Teléfono: 
+                      br
+                      = cliente.telefono
+                
+                .col-md-6
+                  h6 Información adicional
+                  if cliente.empresa
+                    p
+                      strong Empresa: 
+                      br
+                      = cliente.empresa
+                  p
+                    strong ID: 
+                    br
+                    = cliente.id
+                  p
+                    strong Estado: 
+                    span.badge.bg-success Activo
+
+=====================================================
+
+# Archivo: C:\Users\micae\Desktop\4to Cuatri\Back\ProyectoBack\eventify-backend\views\layout\layout.pug
+
+//- views/layout/layout.pug
+doctype html
+html(lang="es")
+  head
+    meta(charset="UTF-8")
+    meta(name="viewport", content="width=device-width, initial-scale=1.0")
+    title= title || 'Eventify - Sistema de Gestión'
+    link(href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css", rel="stylesheet")
+    link(rel="stylesheet", href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.10.0/font/bootstrap-icons.css")
+    //- ✅ CSS cargado desde /public/css/style.css
+    link(rel="stylesheet", href="/css/style.css")
+    block styles
+
+  body
+    //- Wrapper flex para sticky footer
+    .main-wrapper.d-flex.flex-column.min-vh-100
+      .container-fluid.flex-grow-1
+        .row
+          //- Sidebar
+          .col-md-3.col-lg-2.sidebar.p-3
+            .text-center.mb-4
+              h4 
+                i.bi.bi-calendar-event.text-primary.me-2
+                | Eventify
+              hr
+            
+            ul.nav.flex-column
+              li.nav-item
+                a.nav-link(class=(currentPath === '/' ? 'active' : ''), href="/")
+                  i.bi.bi-house.me-2
+                  | Inicio
+              li.nav-item
+                a.nav-link(class=(currentPath === '/clientes' ? 'active' : ''), href="/clientes")
+                  i.bi.bi-people-fill.me-2
+                  | Clientes
+              li.nav-item
+                a.nav-link(class=(currentPath === '/eventos' ? 'active' : ''), href="/eventos")
+                  i.bi.bi-calendar-event.me-2
+                  | Eventos
+              li.nav-item
+                a.nav-link(class=(currentPath === '/empleados' ? 'active' : ''), href="/empleados")
+                  i.bi.bi-person-badge.me-2
+                  | Empleados
+              li.nav-item
+                a.nav-link(class=(currentPath === '/tareas' ? 'active' : ''), href="/tareas")
+                  i.bi.bi-list-task.me-2
+                  | Tareas
+
+          //- Main Content
+          .col-md-9.col-lg-10.main-content.p-4
+            block content
+
+      //- Footer pegado abajo
+      footer.bg-dark.text-white.py-3.mt-auto
+        .container
+          .row
+            .col-md-6
+              p.mb-0 © 2025 Eventify - Sistema de Gestión de Eventos
+            .col-md-6.text-md-end
+              small Versión 1.0.0
+
+    script(src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js")
+    block scripts

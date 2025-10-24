@@ -1,4 +1,4 @@
-// controllers/ClienteWebController.js
+// -------------------- CONTROLADOR WEB DE CLIENTES --------------------
 import ClienteModel from '../models/ClienteModel.js';
 
 /**
@@ -6,7 +6,11 @@ import ClienteModel from '../models/ClienteModel.js';
  */
 const listClientesWeb = async (req, res) => {
   try {
-    const clientes = await ClienteModel.getAll();
+    let clientes = await ClienteModel.getAll();
+
+    // 🔧 Asegurar compatibilidad con MongoDB
+    clientes = clientes.map(c => ({ ...c, id: c.id || c._id?.toString() }));
+
     res.render('clientes/index', {
       title: 'Clientes - Eventify',
       clientes,
@@ -14,7 +18,9 @@ const listClientesWeb = async (req, res) => {
     });
   } catch (error) {
     console.error('Error al cargar clientes:', error);
-    res.status(500).render('error', { title: 'Error - Eventify', message: 'Error al cargar la lista de clientes' });
+    res
+      .status(500)
+      .render('error', { title: 'Error - Eventify', message: 'Error al cargar la lista de clientes' });
   }
 };
 
@@ -22,7 +28,12 @@ const listClientesWeb = async (req, res) => {
  * Mostrar formulario para crear un nuevo cliente
  */
 const showNewForm = (req, res) => {
-  res.render('clientes/form', { title: 'Nuevo Cliente - Eventify', formTitle: 'Nuevo Cliente', cliente: null, formAction: '/clientes' });
+  res.render('clientes/form', {
+    title: 'Nuevo Cliente - Eventify',
+    formTitle: 'Nuevo Cliente',
+    cliente: null,
+    formAction: '/clientes'
+  });
 };
 
 /**
@@ -30,12 +41,26 @@ const showNewForm = (req, res) => {
  */
 const showEditForm = async (req, res) => {
   try {
-    const cliente = await ClienteModel.getById(req.params.id);
-    if (!cliente) return res.status(404).render('error', { title:'Error', message: 'Cliente no encontrado'});
-    res.render('clientes/form', { title: 'Editar Cliente - Eventify', formTitle: 'Editar Cliente', cliente, formAction: `/clientes/${cliente.id}` });
+    let cliente = await ClienteModel.getById(req.params.id);
+    if (!cliente)
+      return res
+        .status(404)
+        .render('error', { title: 'Error', message: 'Cliente no encontrado' });
+
+    // 🔧 Asegurar compatibilidad
+    cliente.id = cliente.id || cliente._id?.toString();
+
+    res.render('clientes/form', {
+      title: 'Editar Cliente - Eventify',
+      formTitle: 'Editar Cliente',
+      cliente,
+      formAction: `/clientes/${cliente.id}?_method=PUT`
+    });
   } catch (error) {
     console.error(error);
-    res.status(500).render('error', { title:'Error', message: 'Error al cargar el cliente' });
+    res
+      .status(500)
+      .render('error', { title: 'Error', message: 'Error al cargar el cliente' });
   }
 };
 
@@ -44,12 +69,20 @@ const showEditForm = async (req, res) => {
  */
 const showCliente = async (req, res) => {
   try {
-    const cliente = await ClienteModel.getById(req.params.id);
-    if (!cliente) return res.status(404).render('error', { title:'Error', message: 'Cliente no encontrado'});
+    let cliente = await ClienteModel.getById(req.params.id);
+    if (!cliente)
+      return res
+        .status(404)
+        .render('error', { title: 'Error', message: 'Cliente no encontrado' });
+
+    cliente.id = cliente.id || cliente._id?.toString();
+
     res.render('clientes/show', { title: `${cliente.nombre} - Eventify`, cliente });
   } catch (error) {
     console.error(error);
-    res.status(500).render('error', { title:'Error', message: 'Error al cargar el cliente' });
+    res
+      .status(500)
+      .render('error', { title: 'Error', message: 'Error al cargar el cliente' });
   }
 };
 
@@ -62,7 +95,9 @@ const createClienteWeb = async (req, res) => {
     res.redirect('/clientes');
   } catch (error) {
     console.error(error);
-    res.status(500).render('error', { title:'Error', message: 'Error al crear el cliente' });
+    res
+      .status(500)
+      .render('error', { title: 'Error', message: 'Error al crear el cliente' });
   }
 };
 
@@ -72,11 +107,17 @@ const createClienteWeb = async (req, res) => {
 const updateClienteWeb = async (req, res) => {
   try {
     const actualizado = await ClienteModel.update(req.params.id, req.body);
-    if (!actualizado) return res.status(404).render('error', { title:'Error', message: 'Cliente no encontrado' });
+    if (!actualizado)
+      return res
+        .status(404)
+        .render('error', { title: 'Error', message: 'Cliente no encontrado' });
+
     res.redirect('/clientes');
   } catch (error) {
     console.error(error);
-    res.status(500).render('error', { title:'Error', message: 'Error al actualizar el cliente' });
+    res
+      .status(500)
+      .render('error', { title: 'Error', message: 'Error al actualizar el cliente' });
   }
 };
 
@@ -86,7 +127,10 @@ const updateClienteWeb = async (req, res) => {
 const deleteClienteWeb = async (req, res) => {
   try {
     const eliminado = await ClienteModel.remove(req.params.id);
-    if (!eliminado) return res.status(404).render('error', { title:'Error', message:'Cliente no encontrado' });
+    if (!eliminado)
+      return res
+        .status(404)
+        .render('error', { title: 'Error', message: 'Cliente no encontrado' });
 
     // Si la petición viene de fetch/ajax, devolver JSON
     if (req.xhr || req.headers.accept?.includes('application/json')) {
@@ -97,8 +141,18 @@ const deleteClienteWeb = async (req, res) => {
     res.redirect('/clientes');
   } catch (error) {
     console.error(error);
-    res.status(500).render('error', { title:'Error', message:'Error al eliminar el cliente' });
+    res
+      .status(500)
+      .render('error', { title: 'Error', message: 'Error al eliminar el cliente' });
   }
 };
 
-export default { listClientesWeb, showNewForm, showEditForm, showCliente, createClienteWeb, updateClienteWeb, deleteClienteWeb };
+export default {
+  listClientesWeb,
+  showNewForm,
+  showEditForm,
+  showCliente,
+  createClienteWeb,
+  updateClienteWeb,
+  deleteClienteWeb
+};

@@ -59,7 +59,11 @@ block content
                         i.bi.bi-eye
                       a.btn.btn-sm.btn-outline-secondary(href=`/clientes/editar/${cliente.id}`)
                         i.bi.bi-pencil
-                      button.btn.btn-sm.btn-outline-danger(type="button", onclick=`confirmDelete(${cliente.id})`)
+                      //- 🔥 Arreglo clave: ID entre comillas
+                      button.btn.btn-sm.btn-outline-danger(
+                        type="button",
+                        onclick=`confirmDelete('${cliente.id}')`
+                      )
                         i.bi.bi-trash
       else
         .text-center.py-5
@@ -67,19 +71,44 @@ block content
           p.mt-3 No hay clientes registrados
           a.btn.btn-primary(href="/clientes/nuevo") Agregar primer cliente
 
+  //- Toast de notificación (opcional, mejora visual)
+  div#toastContainer.position-fixed.bottom-0.end-0.p-3(style="z-index: 1055")
+    .toast(role="alert" aria-live="assertive" aria-atomic="true")
+      .toast-header
+        strong.me-auto Eventify
+        small.text-muted Justo ahora
+        button.btn-close(type="button", data-bs-dismiss="toast", aria-label="Cerrar")
+      .toast-body#toastBody Cliente eliminado correctamente
+
 block scripts
   script.
+    // ✅ Muestra un toast Bootstrap (en lugar de alert)
+    function showToast(message) {
+      const toastBody = document.getElementById('toastBody');
+      const toastEl = document.querySelector('.toast');
+      if (toastBody) toastBody.textContent = message;
+      const toast = new bootstrap.Toast(toastEl);
+      toast.show();
+    }
+
+    // ✅ Función para confirmar y eliminar
     function confirmDelete(id) {
       if (confirm('¿Estás seguro de eliminar este cliente?')) {
-        fetch(`/api/clientes/${id}`, { method: 'DELETE' })
-          .then(response => response.json())
+        fetch(`/clientes/${id}?_method=DELETE`, { method: 'POST' })
+          .then(response => {
+            if (response.redirected) {
+              // Express redirige después de borrar
+              window.location.href = response.url;
+            } else {
+              return response.json();
+            }
+          })
           .then(data => {
-            if (data.mensaje) {
-              alert(data.mensaje);
-              location.reload();
+            if (data?.mensaje) {
+              showToast(data.mensaje);
+              setTimeout(() => location.reload(), 1200);
             }
           })
           .catch(error => console.error('Error:', error));
       }
     }
-    

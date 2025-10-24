@@ -1,3 +1,4 @@
+//
 // -------------------- MODELO DE EMPLEADO --------------------
 import mongoose from 'mongoose';
 

@@ -1,3 +1,5 @@
+// controllers/empleadoController.js
+
 // -------------------- CONTROLADOR DE EMPLEADOS --------------------
 import EmpleadoModel from '../models/EmpleadoModel.js';
 

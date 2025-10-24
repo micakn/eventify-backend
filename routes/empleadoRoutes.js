@@ -1,3 +1,4 @@
+// routes/empleadoRoutes.js
 import express from 'express';
 import empleadoController from '../controllers/empleadoController.js';
 

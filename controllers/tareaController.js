@@ -1,3 +1,4 @@
+// controllers/tareaController.js
 // -------------------- CONTROLADOR DE TAREAS --------------------
 import TareaModel from '../models/TareaModel.js';
 

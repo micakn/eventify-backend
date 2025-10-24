@@ -1,3 +1,4 @@
+// routes/eventoRoutes.js
 import express from 'express';
 import eventoController from '../controllers/eventoController.js';
 

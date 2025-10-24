@@ -1,3 +1,4 @@
+//
 // -------------------- MODELO DE EVENTO --------------------
 import mongoose from 'mongoose';
 

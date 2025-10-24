@@ -1,3 +1,4 @@
+// seed.js
 // -------------------- SEED - CARGA INICIAL DE DATOS --------------------
 import dotenv from 'dotenv';
 import mongoose from 'mongoose';

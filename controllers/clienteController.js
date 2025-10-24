@@ -1,3 +1,4 @@
+// controllers/clienteController.js
 // -------------------- CONTROLADOR DE CLIENTES --------------------
 import ClienteModel from '../models/ClienteModel.js';
 

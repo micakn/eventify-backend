@@ -1,3 +1,4 @@
+// controllers/eventoController.js
 // -------------------- CONTROLADOR DE EVENTOS --------------------
 import EventoModel from '../models/EventoModel.js';
 

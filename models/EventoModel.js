@@ -1,84 +1,108 @@
-import fs from 'fs/promises';
-import path from 'path';
-import { fileURLToPath } from 'url';
+// -------------------- MODELO DE EVENTO --------------------
+import mongoose from 'mongoose';
 
-// Ruta del archivo JSON
-const __filename = fileURLToPath(import.meta.url);
-const __dirname = path.dirname(__filename);
-const EVENTOS_FILE = path.join(__dirname, '../db/eventos.json');
+// -------------------- CONFIGURACIÓN DEL ESQUEMA --------------------
+const EventoSchema = new mongoose.Schema(
+  {
+    nombre: { type: String, required: true, trim: true },
+    descripcion: { type: String, trim: true },
+    fechaInicio: { type: Date },
+    fechaFin: { type: Date },
+    lugar: { type: String, trim: true },
+    presupuesto: { type: Number, default: 0 },
+  },
+  { timestamps: true }
+);
 
+// -------------------- MODELO --------------------
+const Evento = mongoose.models.Evento || mongoose.model('Evento', EventoSchema);
+
+// -------------------- FUNCIÓN AUXILIAR --------------------
+function toPlain(doc) {
+  if (!doc) return null;
+  const obj = doc.toObject({ versionKey: false });
+  obj.id = String(obj._id);
+  return obj;
+}
+
+// -------------------- CRUD --------------------
 class EventoModel {
-  constructor() {}
-
-  // -------------------- MÉTODOS AUXILIARES --------------------
-  // Leer eventos desde JSON de forma asíncrona
-  async _load() {
+  async getAll() {
     try {
-      const data = await fs.readFile(EVENTOS_FILE, 'utf-8');
-      return JSON.parse(data);
+      const eventos = await Evento.find().sort({ createdAt: -1 });
+      return eventos.map(toPlain);
     } catch (error) {
+      console.error('Error al obtener los eventos:', error);
       return [];
     }
   }
 
-  // Guardar eventos en JSON de forma asíncrona
-  async _save(eventos) {
-    await fs.writeFile(EVENTOS_FILE, JSON.stringify(eventos, null, 2));
-  }
-
-  // -------------------- CRUD --------------------
-  // Obtener todos los eventos
-  async getAll() {
-    return await this._load();
-  }
-
-  // Obtener un evento por ID
   async getById(id) {
-    const eventos = await this._load();
-    return eventos.find(ev => String(ev.id) === String(id));
+    if (!mongoose.isValidObjectId(id)) return null;
+    try {
+      const evento = await Evento.findById(id);
+      return toPlain(evento);
+    } catch (error) {
+      console.error('Error al obtener evento por ID:', error);
+      return null;
+    }
   }
 
-  // Agregar un nuevo evento
   async add(evento) {
-    const eventos = await this._load();
-    const nuevo = {
-      id: Date.now(),
-      nombre: evento.nombre || 'Sin nombre',
-      descripcion: evento.descripcion || '',
-      fechaInicio: evento.fechaInicio || null,
-      fechaFin: evento.fechaFin || null,
-      lugar: evento.lugar || ''
-    };
-    eventos.push(nuevo);
-    await this._save(eventos);
-    return nuevo;
+    try {
+      const nuevo = await Evento.create({
+        nombre: evento.nombre,
+        descripcion: evento.descripcion || '',
+        fechaInicio: evento.fechaInicio || null,
+        fechaFin: evento.fechaFin || null,
+        lugar: evento.lugar || '',
+        presupuesto: Number(evento.presupuesto) || 0,
+      });
+      return toPlain(nuevo);
+    } catch (error) {
+      console.error('Error al agregar evento:', error);
+      return null;
+    }
   }
 
-  // Reemplazar completamente un evento (PUT)
   async update(id, evento) {
-    const eventos = await this._load();
-    const index = eventos.findIndex(ev => String(ev.id) === String(id));
-    if (index === -1) return null;
-
-    eventos[index] = { ...eventos[index], ...evento, id: eventos[index].id };
-    await this._save(eventos);
-    return eventos[index];
+    if (!mongoose.isValidObjectId(id)) return null;
+    try {
+      const actualizado = await Evento.findByIdAndUpdate(id, evento, {
+        new: true,
+        runValidators: true,
+      });
+      return actualizado ? toPlain(actualizado) : null;
+    } catch (error) {
+      console.error('Error al actualizar evento:', error);
+      return null;
+    }
   }
 
-  // Actualizar parcialmente un evento (PATCH)
   async patch(id, campos) {
-    return this.update(id, campos);
+    if (!mongoose.isValidObjectId(id)) return null;
+    try {
+      const actualizado = await Evento.findByIdAndUpdate(
+        id,
+        { $set: campos },
+        { new: true, runValidators: true }
+      );
+      return actualizado ? toPlain(actualizado) : null;
+    } catch (error) {
+      console.error('Error al actualizar parcialmente evento:', error);
+      return null;
+    }
   }
 
-  // Eliminar un evento
   async remove(id) {
-    const eventos = await this._load();
-    const index = eventos.findIndex(ev => String(ev.id) === String(id));
-    if (index === -1) return null;
-
-    const eliminado = eventos.splice(index, 1)[0];
-    await this._save(eventos);
-    return eliminado;
+    if (!mongoose.isValidObjectId(id)) return null;
+    try {
+      const eliminado = await Evento.findByIdAndDelete(id);
+      return eliminado ? toPlain(eliminado) : null;
+    } catch (error) {
+      console.error('Error al eliminar evento:', error);
+      return null;
+    }
   }
 }
 

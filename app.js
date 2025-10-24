@@ -12,11 +12,14 @@ import clienteRoutes from './routes/clienteRoutes.js'; // API
 import clienteWebRoutes from './routes/clienteWebRoutes.js'; // Vistas web
 import eventoRoutes from './routes/eventoRoutes.js';
 
-// Importar modelos para renderizar datos en index
-import TareaModel from './models/TareaModel.js';
-import EmpleadoModel from './models/EmpleadoModel.js';
+// Modelos (usarán Mongoose internamente)
 import ClienteModel from './models/ClienteModel.js';
+import EmpleadoModel from './models/EmpleadoModel.js';
 import EventoModel from './models/EventoModel.js';
+import TareaModel from './models/TareaModel.js';
+
+// Conexión a Mongo
+import { connectMongo } from './db/mongoose.js';
 
 // -------------------- Configuración --------------------
 dotenv.config(); // Cargar variables de entorno
@@ -85,8 +88,14 @@ app.use((req, res) => {
   res.status(404).render('error', { title: '404', message: 'Ruta no encontrada' });
 });
 
-// -------------------- Iniciar servidor --------------------
+// Iniciar servidor SOLO tras conectar a Mongo
+connectMongo(process.env.MONGODB_URI)
+.then(() => {
 app.listen(PORT, () => {
-  console.log(`Servidor corriendo en http://localhost:${PORT}`);
+console.log(`Servidor corriendo en http://localhost:${PORT}`);
 });
-
+})
+.catch((err) => {
+console.error('❌ Error conectando a Mongo:', err);
+process.exit(1);
+});

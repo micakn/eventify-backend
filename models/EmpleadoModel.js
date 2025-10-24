@@ -1,89 +1,115 @@
-import fs from 'fs/promises';
-import path from 'path';
-import { fileURLToPath } from 'url';
+// -------------------- MODELO DE EMPLEADO --------------------
+import mongoose from 'mongoose';
 
-// Ruta del archivo JSON
-const __filename = fileURLToPath(import.meta.url);
-const __dirname = path.dirname(__filename);
-const EMPLEADOS_FILE = path.join(__dirname, '../db/empleados.json');
+// -------------------- CONFIGURACIÓN DEL ESQUEMA --------------------
+const EmpleadoSchema = new mongoose.Schema(
+  {
+    nombre: { type: String, required: true, trim: true },
+    rol: {
+      type: String,
+      enum: ['administrador', 'planner', 'coordinador'],
+      required: true,
+    },
+    area: {
+      type: String,
+      enum: ['Producción y Logística', 'Planificación y Finanzas', 'Atención al Cliente', 'Administración'],
+      required: true,
+    },
+    email: { type: String, lowercase: true, trim: true },
+    telefono: { type: String, trim: true },
+  },
+  { timestamps: true }
+);
 
+// -------------------- MODELO --------------------
+const Empleado = mongoose.models.Empleado || mongoose.model('Empleado', EmpleadoSchema);
+
+// -------------------- FUNCIÓN AUXILIAR --------------------
+function toPlain(doc) {
+  if (!doc) return null;
+  const obj = doc.toObject({ versionKey: false });
+  obj.id = String(obj._id);
+  return obj;
+}
+
+// -------------------- CRUD --------------------
 class EmpleadoModel {
-  constructor() {}
-
-  // -------------------- MÉTODOS AUXILIARES --------------------
-  // Leer empleados desde JSON de forma asíncrona
-  async _load() {
+  async getAll() {
     try {
-      const data = await fs.readFile(EMPLEADOS_FILE, 'utf-8');
-      return JSON.parse(data);
+      const empleados = await Empleado.find().sort({ createdAt: -1 });
+      return empleados.map(toPlain);
     } catch (error) {
+      console.error('Error al obtener los empleados:', error);
       return [];
     }
   }
 
-  // Guardar empleados en JSON de forma asíncrona
-  async _save(empleados) {
-    await fs.writeFile(EMPLEADOS_FILE, JSON.stringify(empleados, null, 2));
-  }
-
-  // -------------------- CRUD --------------------
-  // Obtener todos los empleados
-  async getAll() {
-    return await this._load();
-  }
-
-  // Obtener un empleado por ID
   async getById(id) {
-    const empleados = await this._load();
-    return empleados.find(e => String(e.id) === String(id));
+    if (!mongoose.isValidObjectId(id)) return null;
+    try {
+      const empleado = await Empleado.findById(id);
+      return toPlain(empleado);
+    } catch (error) {
+      console.error('Error al obtener empleado por ID:', error);
+      return null;
+    }
   }
 
-  // Agregar un nuevo empleado
   async add(empleado) {
-    const empleados = await this._load();
-    const nuevo = {
-      id: Date.now(),
-      nombre: empleado.nombre || 'Sin nombre',
-      rol: empleado.rol || 'planner',
-      area: empleado.area || 'Producción y Logística',
-      email: empleado.email || '',
-      telefono: empleado.telefono || ''
-    };
-    empleados.push(nuevo);
-    await this._save(empleados);
-    return nuevo;
+    try {
+      const nuevo = await Empleado.create({
+        nombre: empleado.nombre,
+        rol: empleado.rol,
+        area: empleado.area,
+        email: empleado.email || '',
+        telefono: empleado.telefono || '',
+      });
+      return toPlain(nuevo);
+    } catch (error) {
+      console.error('Error al agregar empleado:', error);
+      return null;
+    }
   }
 
-  // Reemplazar completamente un empleado (PUT)
   async update(id, empleado) {
-    const empleados = await this._load();
-    const index = empleados.findIndex(e => String(e.id) === String(id));
-    if (index === -1) return null;
-
-    empleados[index] = { ...empleados[index], ...empleado, id: empleados[index].id };
-    await this._save(empleados);
-    return empleados[index];
+    if (!mongoose.isValidObjectId(id)) return null;
+    try {
+      const actualizado = await Empleado.findByIdAndUpdate(id, empleado, {
+        new: true,
+        runValidators: true,
+      });
+      return actualizado ? toPlain(actualizado) : null;
+    } catch (error) {
+      console.error('Error al actualizar empleado:', error);
+      return null;
+    }
   }
 
-  // Actualizar parcialmente un empleado (PATCH)
   async patch(id, campos) {
-    return this.update(id, campos);
+    if (!mongoose.isValidObjectId(id)) return null;
+    try {
+      const actualizado = await Empleado.findByIdAndUpdate(
+        id,
+        { $set: campos },
+        { new: true, runValidators: true }
+      );
+      return actualizado ? toPlain(actualizado) : null;
+    } catch (error) {
+      console.error('Error al actualizar parcialmente empleado:', error);
+      return null;
+    }
   }
 
-  // Eliminar un empleado
   async remove(id) {
-    const empleados = await this._load();
-    const index = empleados.findIndex(e => String(e.id) === String(id));
-    if (index === -1) return null;
-
-    const eliminado = empleados.splice(index, 1)[0];
-    await this._save(empleados);
-    return eliminado;
+    if (!mongoose.isValidObjectId(id)) return null;
+    try {
+      const eliminado = await Empleado.findByIdAndDelete(id);
+      return eliminado ? toPlain(eliminado) : null;
+    } catch (error) {
+      console.error('Error al eliminar empleado:', error);
+      return null;
+    }
   }
 }
 
 export default new EmpleadoModel();
-
-
-
-

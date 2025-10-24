@@ -25,14 +25,6 @@
     "puesto": "Planner Senior"
   },
   {
-    "id": 1758489644249,
-    "nombre": "Martín López",
-    "rol": "coordinador",
-    "area": "Producción y Logística",
-    "email": "martin.lopez@example.com",
-    "telefono": "+541144455566"
-  },
-  {
     "id": 1758489681367,
     "nombre": "Martín López",
     "rol": "coordinador",

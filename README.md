@@ -1,27 +1,29 @@
 # 🎟️ Eventify - Backend de Gestión de Eventos
 
-**Eventify** es un sistema backend desarrollado con **Node.js, Express y MongoDB**, diseñado para gestionar eventos, empleados, clientes y tareas organizadas por área.  
+**Eventify** es un sistema backend desarrollado con **Node.js, Express y MongoDB**, diseñado para gestionar eventos, empleados, clientes y tareas organizadas por área.
 
 ---
 
 ## 🧠 Descripción general
 
 El sistema permite:
-- Registrar **clientes, empleados y eventos**.
-- Crear y asignar **tareas** según el área correspondiente.
-- Validar que los **tipos de tareas** coincidan con el área.
-- Filtrar tareas por **estado, prioridad, empleado, evento y fechas**.
-- Gestionar los datos mediante **API REST** o **vistas Pug**.
+
+- Registrar **clientes, empleados y eventos**.  
+- Crear y asignar **tareas** según el área correspondiente.  
+- Validar que los **tipos de tareas** coincidan con el área asignada.  
+- Filtrar tareas por **estado, prioridad, empleado, evento o rango de fechas**.  
+- Gestionar la información desde una **API REST** o mediante **vistas web (Pug)**.
 
 ---
 
 ## ⚙️ Tecnologías utilizadas
 
 - **Node.js** + **Express**
-- **MongoDB Atlas** con **Mongoose**
-- **Dotenv** para variables de entorno
-- **Nodemon** para desarrollo
-- **Pug** como motor de vistas (para la parte web)
+- **MongoDB Atlas** + **Mongoose**
+- **Dotenv** para configuración del entorno
+- **Nodemon** (modo desarrollo)
+- **Pug** como motor de vistas
+- **Bootstrap 5** para maquetado visual
 - **Thunder Client / Postman** para pruebas de API
 
 ---
@@ -43,14 +45,15 @@ eventify-backend/
 │ ├── EventoModel.js
 │ ├── TareaModel.js
 │
-├── db/
-│ └── mongoose.js
-│
 ├── routes/
 │ ├── clienteRoutes.js
+│ ├── clienteWebRoutes.js
 │ ├── empleadoRoutes.js
 │ ├── eventoRoutes.js
 │ ├── tareaRoutes.js
+│
+├── db/
+│ └── mongoose.js
 │
 ├── views/
 │ ├── layout/
@@ -58,10 +61,15 @@ eventify-backend/
 │ ├── eventos/
 │ ├── tareas/
 │
-├── seed.js # Script de carga inicial
+├── public/
+│ ├── css/
+│ ├── img/
+│
+├── seed.js # Carga inicial de datos
 ├── app.js # Configuración principal del servidor
+├── .env # Variables de entorno
 ├── package.json
-└── .env
+└── README.md
 
 yaml
 Copiar código
@@ -75,9 +83,11 @@ Copiar código
 |--------|------|-------------|
 | nombre | String | Nombre completo |
 | rol | String | administrador / planner / coordinador |
-| area | String | Área del empleado |
+| area | String | Área de trabajo |
 | email | String | Correo institucional |
 | telefono | String | Contacto |
+
+---
 
 ### 🧾 Cliente
 | Campo | Tipo | Descripción |
@@ -88,13 +98,17 @@ Copiar código
 | empresa | String | Empresa asociada |
 | notas | String | Observaciones adicionales |
 
+---
+
 ### 🗓️ Evento
 | Campo | Tipo | Descripción |
 |--------|------|-------------|
 | nombre | String | Nombre del evento |
-| descripcion | String | Detalle o tipo de evento |
+| descripcion | String | Descripción o tipo de evento |
 | lugar | String | Ubicación |
 | fechaInicio / fechaFin | Date | Duración del evento |
+
+---
 
 ### 🧮 Tarea
 | Campo | Tipo | Descripción |
@@ -104,8 +118,8 @@ Copiar código
 | estado | String | pendiente / en proceso / finalizada |
 | prioridad | String | baja / media / alta |
 | area | String | Área correspondiente |
-| tipo | String | Tipo de tarea válida según área |
-| empleadoAsignado | ObjectId (Empleado) | Asignado a |
+| tipo | String | Tipo de tarea válida según el área |
+| empleadoAsignado | ObjectId (Empleado) | Empleado asignado |
 | eventoAsignado | ObjectId (Evento) | Evento relacionado |
 | horasEstimadas / horasReales | Number | Tiempo de trabajo |
 
@@ -117,9 +131,11 @@ Copiar código
 | Área | Tareas posibles |
 |------|------------------|
 | **Producción y Logística** | Coordinación con proveedores, Montaje de escenario, Verificación técnica previa |
-| **Planificación y Finanzas** | Carga y control del presupuesto, Firma de contratos, Seguimiento del cronograma y fechas clave |
-| **Administración** | Mantenimiento de base de datos de clientes, Control de permisos y accesos |
-| *(Opcional futura)* **Atención al Cliente** | Seguimiento de satisfacción, Comunicación post-evento, Gestión de reclamos |
+| **Planificación y Finanzas** | Carga y control del presupuesto, Firma de contratos, Seguimiento del cronograma |
+| **Administración** | Control de base de datos, permisos y accesos |
+| *(Opcional futura)* **Atención al Cliente** | Seguimiento de satisfacción, comunicación post-evento |
+
+---
 
 ### 🔹 Roles
 | Rol | Descripción |
@@ -130,26 +146,24 @@ Copiar código
 
 ---
 
-## 🌱 Carga inicial de datos (Seed)
+## 🌱 Carga inicial de datos (seed.js)
 
-Para cargar datos de ejemplo en la base MongoDB:
+Para cargar datos de ejemplo en MongoDB Atlas:
 
 ```bash
 node seed.js
 El script:
 
-Limpia las colecciones existentes (clientes, empleados, eventos, tareas)
+✅ Limpia las colecciones existentes
+✅ Inserta datos coherentes con los roles y áreas
+✅ Crea relaciones válidas entre empleados, clientes, eventos y tareas
 
-Inserta datos base coherentes con los roles y áreas
-
-Crea asociaciones válidas entre empleados, eventos y tareas
-
-🧪 Pruebas de API (Thunder Client / Postman)
+🧪 Endpoints de prueba (API REST)
 🔹 Clientes
 Método	Endpoint	Descripción
 GET	/api/clientes	Listar todos
 POST	/api/clientes	Crear nuevo cliente
-GET	/api/clientes/:id	Ver un cliente
+GET	/api/clientes/:id	Ver cliente
 PATCH	/api/clientes/:id	Editar parcialmente
 DELETE	/api/clientes/:id	Eliminar cliente
 
@@ -162,7 +176,7 @@ DELETE	/api/empleados/:id	Eliminar empleado
 
 🔹 Eventos
 Método	Endpoint	Descripción
-GET	/api/eventos	Listar eventos
+GET	/api/eventos	Listar todos
 POST	/api/eventos	Crear evento
 PATCH	/api/eventos/:id	Editar evento
 DELETE	/api/eventos/:id	Eliminar evento
@@ -171,29 +185,30 @@ DELETE	/api/eventos/:id	Eliminar evento
 Método	Endpoint	Descripción
 GET	/api/tareas	Listar todas las tareas
 GET	/api/tareas?estado=pendiente	Filtrar por estado
-POST	/api/tareas	Crear tarea (validada por área/tipo)
+POST	/api/tareas	Crear nueva tarea (validada por área/tipo)
 PATCH	/api/tareas/:id	Editar tarea
 DELETE	/api/tareas/:id	Eliminar tarea
 
-💡 Validación automática: si se intenta crear una tarea cuyo tipo no pertenece al area correspondiente, el backend devuelve:
+🧩 Validación automática:
+Si se intenta crear una tarea cuyo tipo no pertenece al área asignada, el backend devuelve:
 
 json
 Copiar código
 { "mensaje": "Tarea inválida para el área seleccionada" }
-💾 Variables de entorno (.env)
+⚙️ Variables de entorno (.env)
 Ejemplo de archivo .env:
 
 ini
 Copiar código
 PORT=3000
 MONGODB_URI=mongodb+srv://usuario:password@cluster.mongodb.net/eventify
-🚀 Cómo ejecutar el proyecto
+🚀 Ejecución del proyecto
 Instalar dependencias
 
 bash
 Copiar código
 npm install
-Cargar los datos iniciales
+Cargar datos iniciales
 
 bash
 Copiar código
@@ -209,16 +224,20 @@ bash
 Copiar código
 http://localhost:3000/api/tareas
 🧾 Conclusiones
-Este backend implementa de forma completa el modelo de desarrollo incremental, cumpliendo con los requisitos:
+El backend Eventify implementa un sistema completo de gestión de eventos basado en MongoDB Atlas, cumpliendo con los requerimientos académicos:
 
-CRUD por entidad
+CRUD completo por entidad
 
-Validación lógica de tareas según área
+Validación de tareas según área
 
-Roles de usuario diferenciados
+Roles diferenciados (planner, coordinador, administrador)
 
-Persistencia real en MongoDB Atlas
+Persistencia real con MongoDB Atlas
 
-Scripts de carga inicial (seed.js)
+Script de carga inicial (seed.js)
 
-Endpoints REST funcionales y documentados
+Endpoints REST documentados
+
+Interfaz web funcional con vistas Pug
+
+📦 Última actualización: Migración completa a MongoDB Atlas, CRUD web funcional y documentación revisada ✅

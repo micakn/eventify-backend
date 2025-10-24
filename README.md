@@ -30,49 +30,48 @@ El sistema permite:
 
 ## 🧩 Estructura del proyecto
 
+```
 eventify-backend/
 │
 ├── controllers/
-│ ├── ClienteController.js
-│ ├── EmpleadoController.js
-│ ├── EventoController.js
-│ ├── TareaController.js
-│ └── ClienteWebController.js
+│   ├── ClienteController.js
+│   ├── EmpleadoController.js
+│   ├── EventoController.js
+│   ├── TareaController.js
+│   └── ClienteWebController.js
 │
 ├── models/
-│ ├── ClienteModel.js
-│ ├── EmpleadoModel.js
-│ ├── EventoModel.js
-│ ├── TareaModel.js
+│   ├── ClienteModel.js
+│   ├── EmpleadoModel.js
+│   ├── EventoModel.js
+│   ├── TareaModel.js
 │
 ├── routes/
-│ ├── clienteRoutes.js
-│ ├── clienteWebRoutes.js
-│ ├── empleadoRoutes.js
-│ ├── eventoRoutes.js
-│ ├── tareaRoutes.js
+│   ├── clienteRoutes.js
+│   ├── clienteWebRoutes.js
+│   ├── empleadoRoutes.js
+│   ├── eventoRoutes.js
+│   ├── tareaRoutes.js
 │
 ├── db/
-│ └── mongoose.js
+│   └── mongoose.js
 │
 ├── views/
-│ ├── layout/
-│ ├── clientes/
-│ ├── eventos/
-│ ├── tareas/
+│   ├── layout/
+│   ├── clientes/
+│   ├── eventos/
+│   ├── tareas/
 │
 ├── public/
-│ ├── css/
-│ ├── img/
+│   ├── css/
+│   ├── img/
 │
-├── seed.js # Carga inicial de datos
-├── app.js # Configuración principal del servidor
-├── .env # Variables de entorno
+├── seed.js          # Carga inicial de datos
+├── app.js           # Configuración principal del servidor
+├── .env             # Variables de entorno
 ├── package.json
 └── README.md
-
-yaml
-Copiar código
+```
 
 ---
 
@@ -152,92 +151,106 @@ Para cargar datos de ejemplo en MongoDB Atlas:
 
 ```bash
 node seed.js
+```
+
 El script:
 
-✅ Limpia las colecciones existentes
-✅ Inserta datos coherentes con los roles y áreas
-✅ Crea relaciones válidas entre empleados, clientes, eventos y tareas
+✅ Limpia las colecciones existentes  
+✅ Inserta datos coherentes con los roles y áreas  
+✅ Crea relaciones válidas entre empleados, clientes, eventos y tareas  
 
-🧪 Endpoints de prueba (API REST)
-🔹 Clientes
-Método	Endpoint	Descripción
-GET	/api/clientes	Listar todos
-POST	/api/clientes	Crear nuevo cliente
-GET	/api/clientes/:id	Ver cliente
-PATCH	/api/clientes/:id	Editar parcialmente
-DELETE	/api/clientes/:id	Eliminar cliente
+---
 
-🔹 Empleados
-Método	Endpoint	Descripción
-GET	/api/empleados	Listar todos
-POST	/api/empleados	Crear nuevo empleado
-PATCH	/api/empleados/:id	Editar empleado
-DELETE	/api/empleados/:id	Eliminar empleado
+## 🧪 Endpoints de prueba (API REST)
 
-🔹 Eventos
-Método	Endpoint	Descripción
-GET	/api/eventos	Listar todos
-POST	/api/eventos	Crear evento
-PATCH	/api/eventos/:id	Editar evento
-DELETE	/api/eventos/:id	Eliminar evento
+### 🔹 Clientes
+| Método | Endpoint | Descripción |
+|---------|-----------|-------------|
+| GET | `/api/clientes` | Listar todos |
+| POST | `/api/clientes` | Crear nuevo cliente |
+| GET | `/api/clientes/:id` | Ver cliente |
+| PATCH | `/api/clientes/:id` | Editar parcialmente |
+| DELETE | `/api/clientes/:id` | Eliminar cliente |
 
-🔹 Tareas
-Método	Endpoint	Descripción
-GET	/api/tareas	Listar todas las tareas
-GET	/api/tareas?estado=pendiente	Filtrar por estado
-POST	/api/tareas	Crear nueva tarea (validada por área/tipo)
-PATCH	/api/tareas/:id	Editar tarea
-DELETE	/api/tareas/:id	Eliminar tarea
+### 🔹 Empleados
+| Método | Endpoint | Descripción |
+|---------|-----------|-------------|
+| GET | `/api/empleados` | Listar todos |
+| POST | `/api/empleados` | Crear nuevo empleado |
+| PATCH | `/api/empleados/:id` | Editar empleado |
+| DELETE | `/api/empleados/:id` | Eliminar empleado |
 
-🧩 Validación automática:
+### 🔹 Eventos
+| Método | Endpoint | Descripción |
+|---------|-----------|-------------|
+| GET | `/api/eventos` | Listar todos |
+| POST | `/api/eventos` | Crear evento |
+| PATCH | `/api/eventos/:id` | Editar evento |
+| DELETE | `/api/eventos/:id` | Eliminar evento |
+
+### 🔹 Tareas
+| Método | Endpoint | Descripción |
+|---------|-----------|-------------|
+| GET | `/api/tareas` | Listar todas las tareas |
+| GET | `/api/tareas?estado=pendiente` | Filtrar por estado |
+| POST | `/api/tareas` | Crear nueva tarea (validada por área/tipo) |
+| PATCH | `/api/tareas/:id` | Editar tarea |
+| DELETE | `/api/tareas/:id` | Eliminar tarea |
+
+🧩 **Validación automática:**  
 Si se intenta crear una tarea cuyo tipo no pertenece al área asignada, el backend devuelve:
-
-json
-Copiar código
+```json
 { "mensaje": "Tarea inválida para el área seleccionada" }
-⚙️ Variables de entorno (.env)
-Ejemplo de archivo .env:
+```
 
-ini
-Copiar código
+---
+
+## ⚙️ Variables de entorno (`.env`)
+Ejemplo de archivo `.env`:
+```ini
 PORT=3000
 MONGODB_URI=mongodb+srv://usuario:password@cluster.mongodb.net/eventify
-🚀 Ejecución del proyecto
-Instalar dependencias
+```
 
-bash
-Copiar código
-npm install
-Cargar datos iniciales
+---
 
-bash
-Copiar código
-node seed.js
-Ejecutar el servidor
+## 🚀 Ejecución del proyecto
 
-bash
-Copiar código
-npm run dev
-Probar en navegador o Thunder Client
+1. **Instalar dependencias**
+   ```bash
+   npm install
+   ```
 
-bash
-Copiar código
-http://localhost:3000/api/tareas
-🧾 Conclusiones
-El backend Eventify implementa un sistema completo de gestión de eventos basado en MongoDB Atlas, cumpliendo con los requerimientos académicos:
+2. **Cargar datos iniciales**
+   ```bash
+   node seed.js
+   ```
 
-CRUD completo por entidad
+3. **Ejecutar el servidor**
+   ```bash
+   npm run dev
+   ```
 
-Validación de tareas según área
+4. **Probar en navegador o Thunder Client**
+   ```
+   http://localhost:3000/api/tareas
+   ```
 
-Roles diferenciados (planner, coordinador, administrador)
+---
 
-Persistencia real con MongoDB Atlas
+## 🧾 Conclusiones
 
-Script de carga inicial (seed.js)
+El backend **Eventify** implementa un sistema completo de gestión de eventos basado en **MongoDB Atlas**, cumpliendo con los requerimientos académicos:
 
-Endpoints REST documentados
+- CRUD completo por entidad  
+- Validación de tareas según área  
+- Roles diferenciados (planner, coordinador, administrador)  
+- Persistencia real con MongoDB Atlas  
+- Script de carga inicial (`seed.js`)  
+- Endpoints REST documentados  
+- Interfaz web funcional con **vistas Pug**
 
-Interfaz web funcional con vistas Pug
+---
 
-📦 Última actualización: Migración completa a MongoDB Atlas, CRUD web funcional y documentación revisada ✅
+📦 **Última actualización:** Migración completa a MongoDB Atlas, CRUD web funcional y documentación revisada ✅
+

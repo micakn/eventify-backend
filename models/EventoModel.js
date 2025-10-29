@@ -7,8 +7,8 @@ const EventoSchema = new mongoose.Schema(
   {
     nombre: { type: String, required: true, trim: true },
     descripcion: { type: String, trim: true },
-    fechaInicio: { type: Date },
-    fechaFin: { type: Date },
+    fechaInicio: { type: Date, required: true },
+    fechaFin: { type: Date, required: true },
     lugar: { type: String, trim: true },
     presupuesto: { type: Number, default: 0 },
   },

@@ -1,0 +1,107 @@
+extends ../layout/layout
+
+block content
+  .d-flex.justify-content-between.flex-wrap.flex-md-nowrap.align-items-center.pt-3.pb-2.mb-3.border-bottom
+    .d-flex.align-items-center
+      .me-3
+        i.bi.bi-calendar-event.fs-1.text-primary
+      div
+        h1.mb-0 Gestión de Eventos  <!-- Cambiado: h1.mb-0 en lugar de h1.h2.mb-0 -->
+        p.lead.mb-0.text-muted Administra y organiza tus eventos
+    
+    .btn-toolbar.mb-2.mb-md-0
+      a.btn.btn-primary(href="/eventos/crear")
+        i.bi.bi-plus-circle.me-2
+        | Nuevo Evento
+  
+  //- Filtros y búsqueda
+  .card.mb-4
+    .card-body
+      .row
+        .col-md-8
+          .input-group
+            input.form-control(
+              type="text", 
+              placeholder="Buscar evento por nombre, lugar o descripción...", 
+              id="searchInput"
+            )
+            button.btn.btn-outline-primary(type="button", id="searchBtn")
+              i.bi.bi-search.me-2
+              | Buscar
+        .col-md-4
+          select.form-select#filterEstado
+            option(value="all") Todos los estados
+            option(value="activo") Activos
+            option(value="pendiente") Pendientes
+            option(value="finalizado") Finalizados
+            option(value="cancelado") Cancelados
+
+  .card
+    .card-body
+      if eventos && eventos.length > 0
+        .table-responsive
+          table.table.table-hover
+            thead
+              tr.encabezado-tabla
+
+                th Nombre
+                th Tipo
+                th Fecha Inicio
+                th Lugar
+                th Estado
+                th Acciones
+            tbody
+              each evento in eventos
+                tr
+                  td
+                    strong= evento.nombre
+                    if evento.descripcion
+                      br
+                      small.text-muted= evento.descripcion.substring(0, 50) + '...'
+                  td
+                    span.badge.bg-info.text-dark= evento.tipo ? evento.tipo.charAt(0).toUpperCase() + evento.tipo.slice(1) : 'Corporativo'
+                  td
+                    small
+                      strong= new Date(evento.fecha_inicio).toLocaleDateString()
+                      br
+                      span.text-muted= new Date(evento.fecha_inicio).toLocaleTimeString()
+                  td= evento.lugar
+                  td
+                    span.badge(class={
+                      'bg-success': evento.estado === 'activo',
+                      'bg-warning': evento.estado === 'pendiente',
+                      'bg-secondary': evento.estado === 'finalizado',
+                      'bg-danger': evento.estado === 'cancelado'
+                    })
+                      = evento.estado ? evento.estado.charAt(0).toUpperCase() + evento.estado.slice(1) : 'Pendiente'
+                  td
+                    .btn-group-group.btn-group-sm
+                      a.btn.btn-sm.btn-outline-primary(href=`/eventos/editar/${evento._id}`)
+                        i.bi.bi-pencil
+                      form.d-inline(method="POST" action=`/eventos/eliminar/${evento._id}`)
+                        button.btn.btn-sm.btn-outline-danger(type="submit" onclick="return confirm('¿Estás seguro de eliminar este evento?')")
+                          i.bi.bi-trash
+      else
+        .text-center.py-4
+          i.bi.bi-calendar-x.display-1.text-muted
+          h5.mt-3 No hay eventos registrados
+          p.text-muted Comienza creando tu primer evento.
+          a.btn.btn-primary(href="/eventos/crear")
+            i.bi.bi-plus-circle
+            |  Crear Primer Evento
+
+  if error
+    .alert.alert-danger.mt-3
+      i.bi.bi-exclamation-triangle
+      |  #{error}
+
+
+block scripts
+  script.
+    function confirmDelete(eventId, eventName) {
+      if (confirm(`¿Estás seguro de eliminar el evento "${eventName}"?`)) {
+        document.querySelector(`form[action="/eventos/eliminar/${eventId}"]`).submit();
+      }
+    }
+    
+  script(src="/js/filtros.js")

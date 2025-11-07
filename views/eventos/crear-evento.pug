@@ -1,0 +1,16 @@
+extends ../layout/layout
+
+block content
+  .d-flex.justify-content-between.flex-wrap.flex-md-nowrap.align-items-center.pt-3.pb-2.mb-3.border-bottom
+    h1.h2 Crear Nuevo Evento
+    .btn-toolbar.mb-2.mb-md-0
+      a.btn.btn-sm.btn-outline-secondary(href="/eventos")
+        i.bi.bi-arrow-left
+        |  Volver
+  
+  .row
+    .col-lg-8
+      .card
+        .card-body
+          include componentes/formulario-evento
+          

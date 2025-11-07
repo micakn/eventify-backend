@@ -12,6 +12,7 @@ import empleadoRoutes from './routes/empleadoRoutes.js';
 import clienteRoutes from './routes/clienteRoutes.js'; // API
 import clienteWebRoutes from './routes/clienteWebRoutes.js'; // Vistas web
 import eventoRoutes from './routes/eventoRoutes.js';
+import eventoWebRoutes from './routes/eventoWebRoutes.js';
 
 // Modelos (usarán Mongoose internamente)
 import ClienteModel from './models/ClienteModel.js';
@@ -77,6 +78,7 @@ app.get('/', async (req, res) => {
 
 // Web (vistas Pug)
 app.use('/clientes', clienteWebRoutes);
+app.use('/', eventoWebRoutes); 
 
 // APIs (para pruebas con Thunder Client)
 app.use('/api/clientes', clienteRoutes);

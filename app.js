@@ -39,7 +39,7 @@ app.use(express.urlencoded({ extended: true })); // Formularios
 app.use(methodOverride('_method')); // Permite usar DELETE/PUT desde formularios
 
 // Archivos estáticos
-app.use(express.static(path.join(__dirname, 'public')));
+app.use(express.static(path.join(__dirname, 'publics')));
 
 // Middleware para currentPath (útil en layout)
 app.use((req, res, next) => {

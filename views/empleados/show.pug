@@ -1,0 +1,53 @@
+extends ../layout/layout
+
+block content
+  .row.justify-content-center
+    .col-lg-8
+      .card
+        .card-header.d-flex.justify-content-between.align-items-center
+          h3.mb-0
+            i.bi.bi-person-badge.me-2
+            | Detalle del Empleado
+          .btn-group
+            a.btn.btn-outline-secondary(href=`/empleados/editar/${empleado.id}`)
+              i.bi.bi-pencil.me-2
+              | Editar
+            a.btn.btn-outline-primary(href="/empleados")
+              i.bi.bi-arrow-left.me-2
+              | Volver
+
+        .card-body
+          .row
+            .col-md-4.text-center
+              .avatar-placeholder.bg-primary.text-white.rounded-circle.mx-auto.mb-3(style="width: 80px; height: 80px; line-height: 80px; font-size: 2rem;")
+                i.bi.bi-person
+              h5= empleado.nombre
+              span.badge(class=empleado.rol === 'administrador' ? 'bg-danger' : empleado.rol === 'planner' ? 'bg-primary' : 'bg-info')= empleado.rol
+
+            .col-md-8
+              dl.row
+                dt.col-md-4 Área
+                dd.col-md-8= empleado.area
+
+                dt.col-md-4 Email
+                dd.col-md-8
+                  if empleado.email
+                    a(href=`mailto:${empleado.email}`)= empleado.email
+                  else
+                    span.text-muted N/A
+
+                dt.col-md-4 Teléfono
+                dd.col-md-8= empleado.telefono || 'N/A'
+
+          if tareas && tareas.length > 0
+            hr
+            h5 Tareas asignadas
+            ul.list-group
+              each tarea in tareas
+                li.list-group-item
+                  a(href=`/tareas/${tarea.id}`)= tarea.titulo
+                  if tarea.estado
+                    span.badge.ms-2(class=tarea.estado === 'pendiente' ? 'bg-warning' : tarea.estado === 'en proceso' ? 'bg-info' : 'bg-success')= tarea.estado
+          else
+            hr
+            p.text-muted No hay tareas asignadas a este empleado.

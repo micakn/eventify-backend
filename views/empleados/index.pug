@@ -2,47 +2,67 @@
 extends ../layout/layout
 
 block content
-  .d-flex.justify-content-between.align-items-center.mb-4
-    h2
-      i.bi.bi-person-badge.text-warning.me-2
-      | Empleados
-    a.btn.btn-warning(href="/empleados/crear")
-      i.bi.bi-plus-circle.me-1
-      | Nuevo Empleado
+  .d-flex.justify-content-between.flex-wrap.flex-md-nowrap.align-items-center.pt-3.pb-2.mb-3.border-bottom
+    .d-flex.align-items-center
+      .me-3
+        i.bi.bi-person-badge.fs-1.text-warning
+      div
+        h1.mb-0 Gestión de Empleados
+        p.lead.mb-0.text-muted Administra el personal de tu equipo
+    
+    .btn-toolbar.mb-2.mb-md-0
+      a.btn.btn-warning(href="/empleados/crear")
+        i.bi.bi-plus-circle.me-2
+        | Nuevo Empleado
+
+  // Filtros y búsqueda
+  .card.mb-4
+    .card-body
+      .row
+        .col-md-8
+          .input-group
+            input.form-control(type="text", placeholder="Buscar empleado por nombre, área o email...", id="searchInput")
+            button.btn.btn-outline-primary(type="button", id="searchBtn")
+              i.bi.bi-search.me-2
+              | Buscar
+        .col-md-4
+          select.form-select#filterRole
+            option(value="all") Todos los roles
+            option(value="administrador") administrador
+            option(value="planner") planner
+            option(value="coordinador") coordinador
 
   .card.shadow
     .card-body
       if empleados && empleados.length > 0
         .table-responsive
           table.table.table-hover
-            thead.table-light
-              tr
-                th #
+            thead
+              tr.encabezado-tabla
+                th ID
                 th Nombre
                 th Rol
                 th Área
-                th Email
-                th Teléfono
+                th Contacto
                 th Acciones
             tbody
-              each empleado, index in empleados
+              each empleado in empleados
                 tr
-                  td= index + 1
+                  td= empleado.id
                   td
-                    strong= empleado.nombre
+                    = empleado.nombre
                   td
                     span.badge(
                       class=empleado.rol === 'administrador' ? 'bg-danger' : empleado.rol === 'planner' ? 'bg-primary' : 'bg-info'
                     )= empleado.rol
                   td= empleado.area
                   td
-                    if empleado.email
-                      a(href=`mailto:${empleado.email}`)= empleado.email
-                    else
-                      span.text-muted N/A
-                  td= empleado.telefono || 'N/A'
+                    div= empleado.email || ''
+                    small.text-muted= empleado.telefono || ''
                   td
-                    .btn-group(role='group')
+                    .btn-group.btn-group-sm(role='group')
+                      a.btn.btn-sm.btn-outline-secondary(href=`/empleados/${empleado.id}` title='Ver')
+                        i.bi.bi-eye
                       a.btn.btn-sm.btn-outline-primary(
                         href=`/empleados/editar/${empleado.id}`
                         title='Editar'
@@ -52,7 +72,7 @@ block content
                       form.d-inline(
                         method='POST'
                         action=`/empleados/eliminar/${empleado.id}`
-                        onsubmit='return confirm("¿Eliminar este empleado?")'
+                        onsubmit='return confirm("¿Estás seguro de eliminar este empleado?")'
                       )
                         button.btn.btn-sm.btn-outline-danger(type='submit' title='Eliminar')
                           i.bi.bi-trash

@@ -31,125 +31,131 @@ block content
                   placeholder='Título de la tarea'
                 )
 
-        .mb-3
-          label.form-label(for='descripcion')
-            i.bi.bi-file-text.me-1
-            | Descripción
-          textarea#descripcion.form-control(
-            name='descripcion'
-            rows='3'
-            placeholder='Describe la tarea en detalle'
-          )= tarea ? tarea.descripcion : ''
+            .mb-3
+              label.form-label(for='descripcion')
+                i.bi.bi-file-text.me-1
+                | Descripción
+              textarea#descripcion.form-control(
+                name='descripcion'
+                rows='3'
+                placeholder='Describe la tarea en detalle'
+              )= tarea ? tarea.descripcion : ''
 
-        .row
-          .col-md-6.mb-3
-            label.form-label(for='area')
-              i.bi.bi-building.me-1
-              | Área *
-            select#area.form-select(name='area' required)
-              option(value='' selected=!tarea) Selecciona un área
-              option(value='Producción y Logística' selected=tarea && tarea.area === 'Producción y Logística') Producción y Logística
-              option(value='Planificación y Finanzas' selected=tarea && tarea.area === 'Planificación y Finanzas') Planificación y Finanzas
+            .row
+              .col-md-6.mb-3
+                label.form-label(for='area')
+                  i.bi.bi-building.me-1
+                  | Área *
+                select#area.form-select(name='area' required)
+                  option(value='' selected=!tarea) Selecciona un área
+                  option(value='Producción y Logística' selected=tarea && tarea.area === 'Producción y Logística') Producción y Logística
+                  option(value='Planificación y Finanzas' selected=tarea && tarea.area === 'Planificación y Finanzas') Planificación y Finanzas
 
-          .col-md-6.mb-3
-            label.form-label(for='tipo')
-              i.bi.bi-tag.me-1
-              | Tipo *
-            input#tipo.form-control(
-              type='text'
-              name='tipo'
-              value=tarea ? tarea.tipo : ''
-              required
-              placeholder='Tipo de tarea según área'
-            )
+              .col-md-6.mb-3
+                label.form-label(for='tipo')
+                  i.bi.bi-tag.me-1
+                  | Tipo *
+                input#tipo.form-control(
+                  type='text'
+                  name='tipo'
+                  value=tarea ? tarea.tipo : ''
+                  required
+                  placeholder='Tipo de tarea según área'
+                )
 
-        .row
-          .col-md-4.mb-3
-            label.form-label(for='estado')
-              i.bi.bi-circle.me-1
-              | Estado
-            select#estado.form-select(name='estado')
-              option(value='pendiente' selected=!tarea || tarea.estado === 'pendiente') Pendiente
-              option(value='en proceso' selected=tarea && tarea.estado === 'en proceso') En Proceso
-              option(value='finalizada' selected=tarea && tarea.estado === 'finalizada') Finalizada
+            .row
+              .col-md-6.mb-3
+                label.form-label(for='estado')
+                  i.bi.bi-check-circle.me-1
+                  | Estado
+                select#estado.form-select(name='estado')
+                  option(value='pendiente' selected=!tarea || tarea.estado === 'pendiente') Pendiente
+                  option(value='en proceso' selected=tarea && tarea.estado === 'en proceso') En Proceso
+                  option(value='finalizada' selected=tarea && tarea.estado === 'finalizada') Finalizada
 
-          .col-md-4.mb-3
-            label.form-label(for='fechaInicio')
-              i.bi.bi-calendar-check.me-1
-              | Fecha Inicio
-            input#fechaInicio.form-control(
-              type='date'
-              name='fechaInicio'
-              value=tarea && tarea.fechaInicio ? tarea.fechaInicio.toISOString().split('T')[0] : ''
-            )
+              .col-md-6.mb-3
+                label.form-label(for='prioridad')
+                  i.bi.bi-exclamation-diamond.me-1
+                  | Prioridad
+                select#prioridad.form-select(name='prioridad')
+                  option(value='baja' selected=tarea && tarea.prioridad === 'baja') Baja
+                  option(value='media' selected=!tarea || tarea.prioridad === 'media') Media
+                  option(value='alta' selected=tarea && tarea.prioridad === 'alta') Alta
 
-          .col-md-4.mb-3
-            label.form-label(for='fechaFin')
-              i.bi.bi-calendar-x.me-1
-              | Fecha Fin
-            input#fechaFin.form-control(
-              type='date'
-              name='fechaFin'
-              value=tarea && tarea.fechaFin ? tarea.fechaFin.toISOString().split('T')[0] : ''
-            )
+            .row
+              .col-md-6.mb-3
+                label.form-label(for='fechaInicio')
+                  i.bi.bi-calendar-check.me-1
+                  | Fecha Inicio
+                input#fechaInicio.form-control(
+                  type='date'
+                  name='fechaInicio'
+                  value=tarea && tarea.fechaInicio ? tarea.fechaInicio.toISOString().split('T')[0] : ''
+                )
 
-        .row
-          .col-md-6.mb-3
-            label.form-label(for='empleadoAsignado')
-              i.bi.bi-person-badge.me-1
-              | Empleado Asignado
-            select#empleadoAsignado.form-select(name='empleadoAsignado')
-              option(value='' selected=!tarea || !tarea.empleadoAsignado) Sin asignar
-              each empleado in empleados
-                option(
-                  value=empleado.id
-                  selected=tarea && tarea.empleadoAsignado && (tarea.empleadoAsignado.id === empleado.id || tarea.empleadoAsignado === empleado.id)
-                )= `${empleado.nombre} - ${empleado.rol}`
+              .col-md-6.mb-3
+                label.form-label(for='fechaFin')
+                  i.bi.bi-calendar-x.me-1
+                  | Fecha Fin
+                input#fechaFin.form-control(
+                  type='date'
+                  name='fechaFin'
+                  value=tarea && tarea.fechaFin ? tarea.fechaFin.toISOString().split('T')[0] : ''
+                )
 
-          .col-md-6.mb-3
-            label.form-label(for='eventoAsignado')
-              i.bi.bi-calendar-event.me-1
-              | Evento Asignado
-            select#eventoAsignado.form-select(name='eventoAsignado')
-              option(value='' selected=!tarea || !tarea.eventoAsignado) Sin evento
-              each evento in eventos
-                option(
-                  value=evento.id
-                  selected=tarea && tarea.eventoAsignado && (tarea.eventoAsignado.id === evento.id || tarea.eventoAsignado === evento.id)
-                )= evento.nombre
+            hr.my-3
 
-        .row
-          .col-md-6.mb-3
-            label.form-label(for='horasEstimadas')
-              i.bi.bi-clock.me-1
-              | Horas Estimadas
-            input#horasEstimadas.form-control(
-              type='number'
-              name='horasEstimadas'
-              value=tarea ? tarea.horasEstimadas : 0
-              min='0'
-              step='0.5'
-            )
+            .row
+              .col-md-6.mb-3
+                label.form-label(for='empleadoAsignado')
+                  i.bi.bi-person-badge.me-1
+                  | Empleado Asignado
+                select#empleadoAsignado.form-select(name='empleadoAsignado')
+                  option(value='' selected=!tarea || !tarea.empleadoAsignado) Sin asignar
+                  each empleado in empleados
+                    option(value=empleado.id, selected=tarea && tarea.empleadoAsignado && String(tarea.empleadoAsignado._id || tarea.empleadoAsignado) === String(empleado.id))= `${empleado.nombre} - ${empleado.rol}`
 
-          .col-md-6.mb-3
-            label.form-label(for='horasReales')
-              i.bi.bi-clock-history.me-1
-              | Horas Reales
-            input#horasReales.form-control(
-              type='number'
-              name='horasReales'
-              value=tarea ? tarea.horasReales : 0
-              min='0'
-              step='0.5'
-            )
+              .col-md-6.mb-3
+                label.form-label(for='eventoAsignado')
+                  i.bi.bi-calendar-event.me-1
+                  | Evento Asignado
+                select#eventoAsignado.form-select(name='eventoAsignado')
+                  option(value='' selected=!tarea || !tarea.eventoAsignado) Sin evento
+                  each evento in eventos
+                    option(value=evento.id, selected=tarea && tarea.eventoAsignado && String(tarea.eventoAsignado._id || tarea.eventoAsignado) === String(evento.id))= evento.nombre
 
-        hr.my-4
+            .row
+              .col-md-6.mb-3
+                label.form-label(for='horasEstimadas')
+                  i.bi.bi-clock.me-1
+                  | Horas Estimadas
+                input#horasEstimadas.form-control(
+                  type='number'
+                  name='horasEstimadas'
+                  value=tarea ? tarea.horasEstimadas : 0
+                  min='0'
+                  step='0.5'
+                )
 
-        .d-flex.justify-content-between
-          a.btn.btn-secondary(href='/tareas')
-            i.bi.bi-arrow-left.me-1
-            | Volver
-          
-          button.btn.btn-info(type='submit')
-            i.bi.bi-check-circle.me-1
-            | Guardar 
+              .col-md-6.mb-3
+                label.form-label(for='horasReales')
+                  i.bi.bi-clock-history.me-1
+                  | Horas Reales
+                input#horasReales.form-control(
+                  type='number'
+                  name='horasReales'
+                  value=tarea ? tarea.horasReales : 0
+                  min='0'
+                  step='0.5'
+                )
+
+            hr.my-4
+
+            .d-flex.justify-content-end.gap-2
+              a.btn.btn-secondary(href='/tareas')
+                i.bi.bi-arrow-left.me-1
+                | Cancelar
+              
+              button.btn.btn-primary(type='submit')
+                i.bi.bi-check-circle.me-1
+                | Guardar Tarea

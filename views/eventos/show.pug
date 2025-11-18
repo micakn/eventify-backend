@@ -1,0 +1,56 @@
+extends ../layout/layout
+
+block content
+  .row.justify-content-center
+    .col-lg-8
+      .card
+        .card-header.d-flex.justify-content-between.align-items-center
+          h3.mb-0
+            i.bi.bi-calendar-event.me-2
+            | Detalle del Evento
+          .btn-group
+            a.btn.btn-outline-secondary(href=`/eventos/editar/${evento.id}`)
+              i.bi.bi-pencil.me-2
+              | Editar
+            a.btn.btn-outline-primary(href="/eventos")
+              i.bi.bi-arrow-left.me-2
+              | Volver
+
+        .card-body
+          .row
+            .col-md-12
+              h4= evento.nombre
+              p.text-muted= evento.tipo + ' · ' + (evento.estado || '')
+              if evento.descripcion
+                p= evento.descripcion
+              dl.row
+                dt.col-md-3 Fecha Inicio
+                dd.col-md-9= evento.fechaInicio ? new Date(evento.fechaInicio).toLocaleString() : 'No definida'
+
+                dt.col-md-3 Fecha Fin
+                dd.col-md-9= evento.fechaFin ? new Date(evento.fechaFin).toLocaleString() : 'No definida'
+
+                dt.col-md-3 Lugar
+                dd.col-md-9= evento.lugar || 'No especificado'
+
+                dt.col-md-3 Presupuesto
+                dd.col-md-9= evento.presupuesto ? `$ ${evento.presupuesto.toLocaleString()}` : '$ 0'
+
+                dt.col-md-3 Cliente
+                dd.col-md-9
+                  if evento.cliente
+                    a(href=`/clientes/${evento.cliente.id || evento.cliente._id}`)= evento.cliente.nombre || (`Cliente ${String(evento.cliente.id || evento.cliente._id).slice(0,6)}`)
+                    if evento.cliente.empresa
+                      br
+                      small.text-muted= evento.cliente.empresa
+                  else
+                    span.text-muted No asignado
+
+                dt.col-md-3 Empleado Responsable
+                dd.col-md-9
+                  if evento.empleado
+                    a(href=`/empleados/${evento.empleado.id || evento.empleado._id}`)= evento.empleado.nombre || (`Empleado ${String(evento.empleado.id || evento.empleado._id).slice(0,6)}`)
+                    br
+                    small.text-muted= evento.empleado.rol
+                  else
+                    span.text-muted No asignado

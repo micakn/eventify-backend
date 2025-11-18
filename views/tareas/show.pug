@@ -1,0 +1,50 @@
+extends ../layout/layout
+
+block content
+  .row.justify-content-center
+    .col-lg-8
+      .card
+        .card-header.d-flex.justify-content-between.align-items-center
+          h3.mb-0
+            i.bi.bi-list-task.me-2
+            | Detalle de la Tarea
+          .btn-group
+            a.btn.btn-outline-secondary(href=`/tareas/editar/${tarea.id}`)
+              i.bi.bi-pencil.me-2
+              | Editar
+            a.btn.btn-outline-primary(href="/tareas")
+              i.bi.bi-arrow-left.me-2
+              | Volver
+
+        .card-body
+          h4= tarea.titulo
+          if tarea.descripcion
+            p= tarea.descripcion
+
+          dl.row
+            dt.col-md-3 Estado
+            dd.col-md-9
+              span.badge(class=tarea.estado === 'pendiente' ? 'bg-warning' : tarea.estado === 'en proceso' ? 'bg-info' : 'bg-success')= tarea.estado
+
+            dt.col-md-3 Prioridad
+            dd.col-md-9= tarea.prioridad
+
+            dt.col-md-3 Área
+            dd.col-md-9= tarea.area
+
+            dt.col-md-3 Tipo
+            dd.col-md-9= tarea.tipo
+
+            dt.col-md-3 Empleado asignado
+            dd.col-md-9
+              if tarea.empleadoAsignado
+                a(href=`/empleados/${tarea.empleadoAsignado.id || tarea.empleadoAsignado._id}`)= tarea.empleadoAsignado.nombre
+              else
+                span.text-muted Sin asignar
+
+            dt.col-md-3 Evento asignado
+            dd.col-md-9
+              if tarea.eventoAsignado
+                a(href=`/eventos/ver/${tarea.eventoAsignado.id || tarea.eventoAsignado._id}`)= tarea.eventoAsignado.nombre
+              else
+                span.text-muted Sin evento

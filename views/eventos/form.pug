@@ -1,0 +1,94 @@
+//- views/eventos/form.pug
+extends ../layout/layout
+
+block content
+  .row.justify-content-center
+    .col-md-10
+      .card.shadow
+        .card-header.bg-primary.text-white
+          h4.mb-0
+            i.bi.bi-calendar-plus.me-2
+            = formTitle
+
+        .card-body
+          if error
+            .alert.alert-danger.alert-dismissible.fade.show(role='alert')
+              i.bi.bi-exclamation-triangle-fill.me-2
+              = error
+              button.btn-close(type='button' data-bs-dismiss='alert')
+
+          form(method='POST' action=formAction)
+            .row
+              .col-md-12.mb-3
+                label.form-label(for='nombre') Nombre del Evento *
+                input#nombre.form-control(type='text', name='nombre', value=evento ? evento.nombre : '', required, placeholder='Ingresa el nombre del evento')
+            
+            .row
+              .col-md-6.mb-3
+                label.form-label(for='tipo') Tipo de Evento
+                select#tipo.form-select(name='tipo')
+                  option(value='corporativo' selected=evento && evento.tipo === 'corporativo') Corporativo
+                  option(value='conferencia' selected=evento && evento.tipo === 'conferencia') Conferencia
+                  option(value='workshop' selected=evento && evento.tipo === 'workshop') Workshop
+                  option(value='networking' selected=evento && evento.tipo === 'networking') Networking
+                  option(value='social' selected=evento && evento.tipo === 'social') Social
+                  option(value='deportivo' selected=evento && evento.tipo === 'deportivo') Deportivo
+                  option(value='cultural' selected=evento && evento.tipo === 'cultural') Cultural
+                  option(value='educativo' selected=evento && evento.tipo === 'educativo') Educativo
+              
+              .col-md-6.mb-3
+                label.form-label(for='estado') Estado
+                select#estado.form-select(name='estado')
+                  option(value='pendiente' selected=!evento || evento.estado === 'pendiente') Pendiente
+                  option(value='activo' selected=evento && evento.estado === 'activo') Activo
+                  option(value='finalizado' selected=evento && evento.estado === 'finalizado') Finalizado
+                  option(value='cancelado' selected=evento && evento.estado === 'cancelado') Cancelado
+
+            hr.my-3
+
+            .row
+              .col-md-6.mb-3
+                label.form-label(for='cliente_id') Cliente Asociado
+                select#cliente_id.form-select(name='cliente_id')
+                  option(value='') Seleccionar cliente...
+                  each cliente in clientes
+                    option(value=cliente.id, selected=evento && evento.cliente_id == cliente.id)= `${cliente.nombre}${cliente.empresa ? ' - ' + cliente.empresa : ''}`
+              
+              .col-md-6.mb-3
+                label.form-label(for='empleado_id') Empleado Responsable
+                select#empleado_id.form-select(name='empleado_id')
+                  option(value='') Seleccionar empleado...
+                  each empleado in empleados
+                    option(value=empleado.id, selected=evento && evento.empleado_id == empleado.id)= `${empleado.nombre} - ${empleado.rol}`
+
+            .row
+              .col-md-6.mb-3
+                label.form-label(for='fecha_inicio') Fecha de Inicio
+                input#fecha_inicio.form-control(type='datetime-local', name='fecha_inicio', value=evento && evento.fecha_inicio ? new Date(evento.fecha_inicio).toISOString().slice(0,16) : '')
+              
+              .col-md-6.mb-3
+                label.form-label(for='fecha_fin') Fecha de Fin
+                input#fecha_fin.form-control(type='datetime-local', name='fecha_fin', value=evento && evento.fecha_fin ? new Date(evento.fecha_fin).toISOString().slice(0,16) : '')
+            
+            .mb-3
+              label.form-label(for='descripcion') Descripción
+              textarea#descripcion.form-control(name='descripcion', rows='3', placeholder='Describe el evento...')= evento ? evento.descripcion : ''
+            
+            .row
+              .col-md-8.mb-3
+                label.form-label(for='lugar') Lugar *
+                input#lugar.form-control(type='text', name='lugar', value=evento ? evento.lugar : '', required, placeholder='Nombre del lugar o sede')
+              
+              .col-md-4.mb-3
+                label.form-label(for='precio') Presupuesto
+                .input-group
+                  span.input-group-text $
+                  input#precio.form-control(type='number', name='precio', value=evento ? (evento.precio || evento.presupuesto) : '', step='0.01', min='0', placeholder='0.00')
+            
+            hr.my-4
+
+            .d-flex.justify-content-end.gap-2
+              a.btn.btn-secondary(href='/eventos') Cancelar
+              button.btn.btn-primary(type='submit')
+                i.bi.bi-check-circle.me-1
+                = evento ? 'Actualizar Evento' : 'Crear Evento'

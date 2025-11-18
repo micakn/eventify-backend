@@ -1,5 +1,6 @@
 // -------------------- CONTROLADOR WEB DE CLIENTES --------------------
 import ClienteModel from '../models/ClienteModel.js';
+import EventoModel from '../models/EventoModel.js';
 
 /**
  * Listar todos los clientes y renderizar la vista index.pug
@@ -77,7 +78,28 @@ const showCliente = async (req, res) => {
 
     cliente.id = cliente.id || cliente._id?.toString();
 
-    res.render('clientes/show', { title: `${cliente.nombre} - Eventify`, cliente });
+    // Obtener eventos relacionados con este cliente
+    const eventosRaw = await EventoModel.getAll();
+    const eventos = eventosRaw
+      .filter(ev => {
+        // ev puede contener clienteIdString (set in toPlain) o clienteId como objeto
+        let cid = null;
+        if (ev.clienteIdString) cid = ev.clienteIdString;
+        else if (ev.clienteId && typeof ev.clienteId === 'object') cid = String(ev.clienteId._id || ev.clienteId);
+        else cid = ev.clienteId;
+        return String(cid) === String(cliente.id);
+      })
+      .map(ev => ({
+        // Normalizar identificador para compatibilidad con distintas representaciones
+        id: ev.id || ev._id || (ev._id && ev._id.toString()),
+        _id: ev._id || ev.id,
+        nombre: ev.nombre,
+        lugar: ev.lugar,
+        fecha_inicio: ev.fechaInicio || ev.fecha_inicio,
+        cliente: ev.clienteId || ev.cliente
+      }));
+
+    res.render('clientes/show', { title: `${cliente.nombre} - Eventify`, cliente, eventos });
   } catch (error) {
     console.error(error);
     res

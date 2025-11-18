@@ -43,6 +43,8 @@ const Evento =
       fechaInicio: Date,
       fechaFin: Date,
       lugar: String,
+      clienteId: { type: mongoose.Schema.Types.ObjectId, ref: 'Cliente' },
+      empleadoId: { type: mongoose.Schema.Types.ObjectId, ref: 'Empleado' },
     })
   );
 
@@ -184,6 +186,19 @@ async function seedDB() {
   const clientes = await Cliente.insertMany(clientesSeed);
   const empleados = await Empleado.insertMany(empleadosSeed);
   const eventos = await Evento.insertMany(eventosSeed);
+
+  // Asignar clientes y empleados responsables a eventos (para que en la vista se vean ambas relaciones)
+  try {
+    await Promise.all([
+      Evento.findByIdAndUpdate(eventos[0]._id, { clienteId: clientes[0]._id, empleadoId: empleados[0]._id }),
+      Evento.findByIdAndUpdate(eventos[1]._id, { clienteId: clientes[3]._id, empleadoId: empleados[1]._id }),
+      Evento.findByIdAndUpdate(eventos[2]._id, { clienteId: clientes[1]._id, empleadoId: empleados[2]._id }),
+      Evento.findByIdAndUpdate(eventos[3]._id, { clienteId: clientes[2]._id, empleadoId: empleados[3]._id }),
+    ]);
+    console.log('Clientes y empleados asignados a eventos en seed');
+  } catch (err) {
+    console.error('Error asignando clientes/empleados a eventos en seed:', err);
+  }
 
   const tareasSeed = [
     // ---- Producción y Logística ----

@@ -1,5 +1,6 @@
 // controllers/EmpleadoWebController.js
 import EmpleadoModel from '../models/EmpleadoModel.js';
+import TareaModel from '../models/TareaModel.js';
 
 const EmpleadoWebController = {
   /**
@@ -158,6 +159,33 @@ const EmpleadoWebController = {
       res.redirect('/empleados');
     } catch (error) {
       console.error('Error al eliminar empleado:', error);
+      res.redirect('/empleados');
+    }
+  },
+
+  /**
+   * Mostrar detalle de un empleado y listar sus tareas asignadas
+   */
+  async mostrarEmpleado(req, res) {
+    try {
+      const { id } = req.params;
+      if (!id || id === 'undefined') return res.redirect('/empleados');
+
+      const empleado = await EmpleadoModel.getById(id);
+      if (!empleado) return res.redirect('/empleados');
+
+      // Obtener tareas y filtrar por empleado asignado
+      const tareas = await TareaModel.getAll();
+      const tareasAsignadas = tareas.filter(t => t.empleadoAsignado && (t.empleadoAsignado.id === empleado.id || String(t.empleadoAsignado._id) === String(empleado.id) || String(t.empleadoAsignado) === String(empleado.id)));
+
+      res.render('empleados/show', {
+        title: `Empleado - ${empleado.nombre}`,
+        currentPath: '/empleados',
+        empleado,
+        tareas: tareasAsignadas
+      });
+    } catch (error) {
+      console.error('Error al mostrar empleado:', error);
       res.redirect('/empleados');
     }
   }

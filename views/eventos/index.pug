@@ -1,3 +1,4 @@
+//- views/eventos/index.pug
 extends ../layout/layout
 
 block content
@@ -6,7 +7,7 @@ block content
       .me-3
         i.bi.bi-calendar-event.fs-1.text-primary
       div
-        h1.mb-0 Gestión de Eventos  <!-- Cambiado: h1.mb-0 en lugar de h1.h2.mb-0 -->
+        h1.mb-0 Gestión de Eventos
         p.lead.mb-0.text-muted Administra y organiza tus eventos
     
     .btn-toolbar.mb-2.mb-md-0
@@ -43,7 +44,6 @@ block content
           table.table.table-hover
             thead
               tr.encabezado-tabla
-
                 th Nombre
                 th Tipo
                 th Fecha Inicio
@@ -75,10 +75,12 @@ block content
                     })
                       = evento.estado ? evento.estado.charAt(0).toUpperCase() + evento.estado.slice(1) : 'Pendiente'
                   td
-                    .btn-group-group.btn-group-sm
-                      a.btn.btn-sm.btn-outline-primary(href=`/eventos/editar/${evento._id}`)
+                    .btn-group.btn-group-sm
+                      a.btn.btn-sm.btn-outline-secondary(href=`/eventos/ver/${evento._id || evento.id}` title='Ver')
+                        i.bi.bi-eye
+                      a.btn.btn-sm.btn-outline-primary(href=`/eventos/editar/${evento._id || evento.id}`)
                         i.bi.bi-pencil
-                      form.d-inline(method="POST" action=`/eventos/eliminar/${evento._id}`)
+                      form.d-inline(method="POST" action=`/eventos/eliminar/${evento._id || evento.id}`)
                         button.btn.btn-sm.btn-outline-danger(type="submit" onclick="return confirm('¿Estás seguro de eliminar este evento?')")
                           i.bi.bi-trash
       else
@@ -95,13 +97,5 @@ block content
       i.bi.bi-exclamation-triangle
       |  #{error}
 
-
 block scripts
-  script.
-    function confirmDelete(eventId, eventName) {
-      if (confirm(`¿Estás seguro de eliminar el evento "${eventName}"?`)) {
-        document.querySelector(`form[action="/eventos/eliminar/${eventId}"]`).submit();
-      }
-    }
-    
   script(src="/js/filtros.js")

@@ -11,5 +11,7 @@ router.post('/crear', EmpleadoWebController.crearEmpleado);
 router.get('/editar/:id', EmpleadoWebController.mostrarFormularioEditar);
 router.post('/editar/:id', EmpleadoWebController.actualizarEmpleado);
 router.post('/eliminar/:id', EmpleadoWebController.eliminarEmpleado);
+// Ruta para ver detalle de empleado
+router.get('/:id', EmpleadoWebController.mostrarEmpleado);
 
 export default router;

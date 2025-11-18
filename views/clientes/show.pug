@@ -53,3 +53,12 @@ block content
                   p
                     strong Estado: 
                     span.badge.bg-success Activo
+          if eventos && eventos.length > 0
+            hr
+            h5 Eventos relacionados
+            ul.list-group
+              each evento in eventos
+                li.list-group-item
+                  a(href=`/eventos/ver/${evento.id}`)= evento.nombre
+                  if evento.lugar
+                    small.text-muted.d-block= evento.lugar

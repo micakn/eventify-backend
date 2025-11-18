@@ -114,3 +114,22 @@ document.addEventListener('DOMContentLoaded', function() {
         );
     }
 });
+
+// Soporte para Empleados y Tareas
+document.addEventListener('DOMContentLoaded', function() {
+    if (document.getElementById('filterRole')) {
+        FiltrosUtil.aplicarFiltrosTabla('searchInput', 'filterRole', {
+            searchColumn: 1, // Nombre
+            searchAdditionalColumns: [3,4], // Área, Email
+            filterColumn: 2 // Rol
+        });
+    }
+
+    if (document.getElementById('filterEstadoTareas')) {
+        FiltrosUtil.aplicarFiltrosTabla('searchInput', 'filterEstadoTareas', {
+            searchColumn: 1, // Título
+            searchAdditionalColumns: [2], // Área
+            filterColumn: 3 // Estado
+        });
+    }
+});

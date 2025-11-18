@@ -242,6 +242,28 @@ const TareaWebController = {
       console.error('Error al eliminar tarea:', error);
       res.redirect('/tareas');
     }
+    },
+
+  /**
+   * Mostrar detalle de una tarea (vista)
+   */
+  async mostrarTarea(req, res) {
+    try {
+      const { id } = req.params;
+      if (!id || id === 'undefined') return res.redirect('/tareas');
+
+      const tarea = await TareaModel.getById(id);
+      if (!tarea) return res.redirect('/tareas');
+
+      res.render('tareas/show', {
+        title: `Tarea - ${tarea.titulo}`,
+        currentPath: '/tareas',
+        tarea
+      });
+    } catch (error) {
+      console.error('Error al mostrar tarea:', error);
+      res.redirect('/tareas');
+    }
   }
 };
 

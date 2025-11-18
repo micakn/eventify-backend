@@ -11,5 +11,7 @@ router.post('/crear', TareaWebController.crearTarea);
 router.get('/editar/:id', TareaWebController.mostrarFormularioEditar);
 router.post('/editar/:id', TareaWebController.actualizarTarea);
 router.post('/eliminar/:id', TareaWebController.eliminarTarea);
+// Ruta para ver detalle de tarea
+router.get('/:id', TareaWebController.mostrarTarea);
 
 export default router;

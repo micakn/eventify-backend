@@ -11,5 +11,7 @@ router.post('/crear', EventoWebController.crearEvento);                // POST /
 router.get('/editar/:id', EventoWebController.mostrarFormularioEditar);// GET /eventos/editar/:id
 router.post('/editar/:id', EventoWebController.actualizarEvento);      // POST /eventos/editar/:id
 router.post('/eliminar/:id', EventoWebController.eliminarEvento);      // POST /eventos/eliminar/:id
+// Ruta para ver detalle de un evento
+router.get('/ver/:id', EventoWebController.mostrarEvento);            // GET /eventos/ver/:id
 
 export default router;

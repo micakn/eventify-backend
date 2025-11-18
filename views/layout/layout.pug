@@ -7,12 +7,56 @@ html(lang="es")
     title= title || 'Eventify - Sistema de Gestión'
     link(href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css", rel="stylesheet")
     link(rel="stylesheet", href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.10.0/font/bootstrap-icons.css")
-
     link(rel="stylesheet", href="/css/styles.css")
     block styles
-    
 
   body
+    //- HEADER con usuario / login
+    header.bg-dark.text-white.mb-3
+      .container-fluid.d-flex.justify-content-between.align-items-center.py-2
+        //- Logo / marca
+        a.d-flex.align-items-center.text-decoration-none.text-white(href="/")
+          i.bi.bi-calendar-event.fs-4.me-2
+          span.fs-5 Eventify
+
+        //- Sección de usuario (autenticado o no)
+        if usuario
+          .dropdown
+            button.btn.btn-outline-light.dropdown-toggle(
+              type='button'
+              data-bs-toggle='dropdown'
+              aria-expanded='false'
+            )
+              i.bi.bi-person-circle.me-1
+              |  #{usuario.nombre}
+            ul.dropdown-menu.dropdown-menu-end
+              li
+                .dropdown-item-text
+                  small.text-muted= usuario.rol
+              li
+                hr.dropdown-divider
+              li
+                a.dropdown-item(href='/auth/perfil')
+                  i.bi.bi-person.me-2
+                  |  Mi Perfil
+              li
+                hr.dropdown-divider
+              li
+                a.dropdown-item.text-danger(
+                  href='/auth/logout'
+                  onclick='return confirm("¿Estás seguro que deseas cerrar sesión?")'
+                )
+                  i.bi.bi-box-arrow-right.me-2
+                  |  Cerrar Sesión
+        else
+          .btn-group(role='group')
+            a.btn.btn-outline-light.btn-sm(href='/auth/login')
+              i.bi.bi-box-arrow-in-right.me-1
+              | Iniciar Sesión
+            a.btn.btn-light.btn-sm(href='/auth/registro')
+              i.bi.bi-person-plus.me-1
+              | Registrarse
+
     //- Wrapper flex para sticky footer
     .main-wrapper.d-flex.flex-column.min-vh-100
       .container-fluid.flex-grow-1
@@ -25,27 +69,79 @@ html(lang="es")
                 | Eventify
               hr
             
+            //- 🔐 Información de Usuario en Sidebar
+            if usuario
+              .alert.alert-info.py-2.px-3.mb-3
+                .d-flex.align-items-center
+                  i.bi.bi-person-circle.fs-3.me-2
+                  div
+                    strong.d-block= usuario.nombre
+                    small.text-muted= usuario.area
+            else
+              .alert.alert-warning.py-2.px-3.mb-3
+                .text-center
+                  i.bi.bi-exclamation-triangle.me-1
+                  small Sin sesión iniciada
+            
             ul.nav.flex-column
               li.nav-item
                 a.nav-link(class=(currentPath === '/' ? 'active' : ''), href="/")
                   i.bi.bi-house.me-2
                   | Inicio
+                  if !usuario
+                    |  
+                    i.bi.bi-lock-fill.text-warning.small
+              
               li.nav-item
-                a.nav-link(class=(currentPath === '/clientes' ? 'active' : ''), href="/clientes")
+                a.nav-link(class=(currentPath.startsWith('/clientes') ? 'active' : ''), href="/clientes")
                   i.bi.bi-people-fill.me-2
                   | Clientes
+                  if !usuario
+                    |  
+                    i.bi.bi-lock-fill.text-warning.small
+              
               li.nav-item
-                a.nav-link(class=(currentPath === '/eventos' ? 'active' : ''), href="/eventos")
+                a.nav-link(class=(currentPath.startsWith('/eventos') ? 'active' : ''), href="/eventos")
                   i.bi.bi-calendar-event.me-2
                   | Eventos
+                  if !usuario
+                    |  
+                    i.bi.bi-lock-fill.text-warning.small
+              
               li.nav-item
-                a.nav-link(class=(currentPath === '/empleados' ? 'active' : ''), href="/empleados")
+                a.nav-link(class=(currentPath.startsWith('/empleados') ? 'active' : ''), href="/empleados")
                   i.bi.bi-person-badge.me-2
                   | Empleados
+                  if !usuario
+                    |  
+                    i.bi.bi-lock-fill.text-warning.small
+              
               li.nav-item
-                a.nav-link(class=(currentPath === '/tareas' ? 'active' : ''), href="/tareas")
+                a.nav-link(class=(currentPath.startsWith('/tareas') ? 'active' : ''), href="/tareas")
                   i.bi.bi-list-task.me-2
                   | Tareas
+                  if !usuario
+                    |  
+                    i.bi.bi-lock-fill.text-warning.small
+            
+            //- 🔐 Botones de Autenticación en Sidebar
+            hr.my-3
+            if usuario
+              .d-grid
+                a.btn.btn-outline-danger.btn-sm(
+                  href='/auth/logout'
+                  onclick='return confirm("¿Cerrar sesión?")'
+                )
+                  i.bi.bi-box-arrow-right.me-1
+                  | Cerrar Sesión
+            else
+              .d-grid.gap-2
+                a.btn.btn-primary.btn-sm(href='/auth/login')
+                  i.bi.bi-box-arrow-in-right.me-1
+                  | Iniciar Sesión
+                a.btn.btn-outline-primary.btn-sm(href='/auth/registro')
+                  i.bi.bi-person-plus.me-1
+                  | Registrarse
 
           //- Main Content
           .col-md-9.col-lg-10.main-content.p-4

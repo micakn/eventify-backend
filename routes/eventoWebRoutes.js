@@ -1,14 +1,15 @@
+// routes/eventoWebRoutes.js
 import express from 'express';
 import EventoWebController from '../controllers/EventoWebController.js';
 
 const router = express.Router();
 
-// Rutas para eventos
-router.get('/eventos', EventoWebController.listarEventos);
-router.get('/eventos/crear', EventoWebController.mostrarFormularioCrear);
-router.post('/eventos/crear', EventoWebController.crearEvento);
-router.get('/eventos/editar/:id', EventoWebController.mostrarFormularioEditar);
-router.post('/eventos/editar/:id', EventoWebController.actualizarEvento);
-router.post('/eventos/eliminar/:id', EventoWebController.eliminarEvento);
+// Las rutas ya tienen el prefijo /eventos desde app.js
+router.get('/', EventoWebController.listarEventos);                    // GET /eventos
+router.get('/crear', EventoWebController.mostrarFormularioCrear);      // GET /eventos/crear
+router.post('/crear', EventoWebController.crearEvento);                // POST /eventos/crear
+router.get('/editar/:id', EventoWebController.mostrarFormularioEditar);// GET /eventos/editar/:id
+router.post('/editar/:id', EventoWebController.actualizarEvento);      // POST /eventos/editar/:id
+router.post('/eliminar/:id', EventoWebController.eliminarEvento);      // POST /eventos/eliminar/:id
 
 export default router;

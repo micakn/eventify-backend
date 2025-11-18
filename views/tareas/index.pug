@@ -1,0 +1,76 @@
+//- views/tareas/index.pug
+extends ../layout/layout
+
+block content
+  .d-flex.justify-content-between.align-items-center.mb-4
+    h2
+      i.bi.bi-list-task.text-info.me-2
+      | Tareas
+    a.btn.btn-info(href="/tareas/crear")
+      i.bi.bi-plus-circle.me-1
+      | Nueva Tarea
+
+  .card.shadow
+    .card-body
+      if tareas && tareas.length > 0
+        .table-responsive
+          table.table.table-hover
+            thead.table-light
+              tr
+                th #
+                th Título
+                th Área
+                th Estado
+                th Prioridad
+                th Empleado
+                th Evento
+                th Acciones
+            tbody
+              each tarea, index in tareas
+                tr
+                  td= index + 1
+                  td
+                    strong= tarea.titulo
+                    if tarea.descripcion
+                      br
+                      small.text-muted= tarea.descripcion.substring(0, 50) + (tarea.descripcion.length > 50 ? '...' : '')
+                  td
+                    small= tarea.area
+                  td
+                    span.badge(
+                      class=tarea.estado === 'pendiente' ? 'bg-warning' : tarea.estado === 'en proceso' ? 'bg-info' : 'bg-success'
+                    )= tarea.estado
+                  td
+                    span.badge(
+                      class=tarea.prioridad === 'alta' ? 'bg-danger' : tarea.prioridad === 'media' ? 'bg-warning' : 'bg-secondary'
+                    )= tarea.prioridad
+                  td
+                    if tarea.empleadoAsignado
+                      small= tarea.empleadoAsignado.nombre
+                    else
+                      span.text-muted Sin asignar
+                  td
+                    if tarea.eventoAsignado
+                      small= tarea.eventoAsignado.nombre
+                    else
+                      span.text-muted Sin evento
+                  td
+                    .btn-group(role='group')
+                      a.btn.btn-sm.btn-outline-primary(
+                        href=`/tareas/editar/${tarea.id}`
+                        title='Editar'
+                      )
+                        i.bi.bi-pencil
+                      
+                      form.d-inline(
+                        method='POST'
+                        action=`/tareas/eliminar/${tarea.id}`
+                        onsubmit='return confirm("¿Eliminar esta tarea?")'
+                      )
+                        button.btn.btn-sm.btn-outline-danger(type='submit' title='Eliminar')
+                          i.bi.bi-trash
+      else
+        .text-center.py-5
+          i.bi.bi-clipboard-x.fs-1.text-muted.d-block.mb-3
+          p.text-muted No hay tareas registradas
+          a.btn.btn-info(href="/tareas/crear") Crear primera tarea

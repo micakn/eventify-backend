@@ -1,0 +1,87 @@
+//- views/empleados/form.pug
+extends ../layout/layout
+
+block content
+  .row.justify-content-center
+    .col-md-8
+      .card.shadow
+        .card-header.bg-warning.text-white
+          h4.mb-0
+            i.bi.bi-person-badge.me-2
+            = formTitle
+
+        .card-body
+          if error
+            .alert.alert-danger.alert-dismissible.fade.show(role='alert')
+              i.bi.bi-exclamation-triangle-fill.me-2
+              = error
+              button.btn-close(type='button' data-bs-dismiss='alert')
+
+          form(method='POST' action=formAction)
+            .row
+              .col-md-6.mb-3
+                label.form-label(for='nombre')
+                  i.bi.bi-person.me-1
+                  | Nombre Completo *
+                input#nombre.form-control(
+                  type='text'
+                  name='nombre'
+                  value=empleado ? empleado.nombre : ''
+                  required
+                  placeholder='Juan Pérez'
+                )
+
+              .col-md-6.mb-3
+                label.form-label(for='rol')
+                  i.bi.bi-award.me-1
+                  | Rol *
+                select#rol.form-select(name='rol' required)
+                  option(value='' selected=!empleado) Selecciona un rol
+                  option(value='administrador' selected=empleado && empleado.rol === 'administrador') Administrador
+                  option(value='planner' selected=empleado && empleado.rol === 'planner') Planner
+                  option(value='coordinador' selected=empleado && empleado.rol === 'coordinador') Coordinador
+
+            .mb-3
+              label.form-label(for='area')
+                i.bi.bi-building.me-1
+                | Área *
+              select#area.form-select(name='area' required)
+                option(value='' selected=!empleado) Selecciona un área
+                option(value='Producción y Logística' selected=empleado && empleado.area === 'Producción y Logística') Producción y Logística
+                option(value='Planificación y Finanzas' selected=empleado && empleado.area === 'Planificación y Finanzas') Planificación y Finanzas
+                option(value='Atención al Cliente' selected=empleado && empleado.area === 'Atención al Cliente') Atención al Cliente
+                option(value='Administración' selected=empleado && empleado.area === 'Administración') Administración
+
+            .row
+              .col-md-6.mb-3
+                label.form-label(for='email')
+                  i.bi.bi-envelope.me-1
+                  | Email
+                input#email.form-control(
+                  type='email'
+                  name='email'
+                  value=empleado ? empleado.email : ''
+                  placeholder='ejemplo@eventify.com'
+                )
+
+              .col-md-6.mb-3
+                label.form-label(for='telefono')
+                  i.bi.bi-phone.me-1
+                  | Teléfono
+                input#telefono.form-control(
+                  type='tel'
+                  name='telefono'
+                  value=empleado ? empleado.telefono : ''
+                  placeholder='+54 11 1234-5678'
+                )
+
+            hr.my-4
+
+            .d-flex.justify-content-between
+              a.btn.btn-secondary(href='/empleados')
+                i.bi.bi-arrow-left.me-1
+                | Volver
+              
+              button.btn.btn-warning(type='submit')
+                i.bi.bi-check-circle.me-1
+                | Guardar

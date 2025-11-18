@@ -1,0 +1,50 @@
+//- views/auth/login.pug
+extends ../layout/layout
+
+block content
+  .container
+    .row.justify-content-center.mt-5
+      .col-md-5
+        .card.shadow
+          .card-body.p-5
+            h2.text-center.mb-4
+              i.bi.bi-lock-fill.text-primary
+              |  Iniciar Sesión
+            
+            if error
+              .alert.alert-danger.alert-dismissible.fade.show(role='alert')
+                i.bi.bi-exclamation-triangle-fill
+                |  #{error}
+                button.btn-close(type='button' data-bs-dismiss='alert')
+
+            form(method='POST' action='/auth/login')
+              .mb-3
+                label.form-label(for='email') 📧 Email
+                input#email.form-control(
+                  type='email'
+                  name='email'
+                  placeholder='tu@email.com'
+                  required
+                )
+
+              .mb-3
+                label.form-label(for='password') 🔒 Contraseña
+                input#password.form-control(
+                  type='password'
+                  name='password'
+                  placeholder='••••••••'
+                  required
+                )
+
+              .d-grid.gap-2
+                button.btn.btn-primary.btn-lg(type='submit')
+                  i.bi.bi-box-arrow-in-right
+                  |  Iniciar Sesión
+
+            hr.my-4
+
+            .text-center
+              p.text-muted ¿No tienes cuenta?
+              a.btn.btn-outline-secondary(href='/auth/registro')
+                i.bi.bi-person-plus
+                |  Registrarse

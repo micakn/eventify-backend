@@ -1,0 +1,63 @@
+//- views/empleados/index.pug
+extends ../layout/layout
+
+block content
+  .d-flex.justify-content-between.align-items-center.mb-4
+    h2
+      i.bi.bi-person-badge.text-warning.me-2
+      | Empleados
+    a.btn.btn-warning(href="/empleados/crear")
+      i.bi.bi-plus-circle.me-1
+      | Nuevo Empleado
+
+  .card.shadow
+    .card-body
+      if empleados && empleados.length > 0
+        .table-responsive
+          table.table.table-hover
+            thead.table-light
+              tr
+                th #
+                th Nombre
+                th Rol
+                th Área
+                th Email
+                th Teléfono
+                th Acciones
+            tbody
+              each empleado, index in empleados
+                tr
+                  td= index + 1
+                  td
+                    strong= empleado.nombre
+                  td
+                    span.badge(
+                      class=empleado.rol === 'administrador' ? 'bg-danger' : empleado.rol === 'planner' ? 'bg-primary' : 'bg-info'
+                    )= empleado.rol
+                  td= empleado.area
+                  td
+                    if empleado.email
+                      a(href=`mailto:${empleado.email}`)= empleado.email
+                    else
+                      span.text-muted N/A
+                  td= empleado.telefono || 'N/A'
+                  td
+                    .btn-group(role='group')
+                      a.btn.btn-sm.btn-outline-primary(
+                        href=`/empleados/editar/${empleado.id}`
+                        title='Editar'
+                      )
+                        i.bi.bi-pencil
+                      
+                      form.d-inline(
+                        method='POST'
+                        action=`/empleados/eliminar/${empleado.id}`
+                        onsubmit='return confirm("¿Eliminar este empleado?")'
+                      )
+                        button.btn.btn-sm.btn-outline-danger(type='submit' title='Eliminar')
+                          i.bi.bi-trash
+      else
+        .text-center.py-5
+          i.bi.bi-person-x.fs-1.text-muted.d-block.mb-3
+          p.text-muted No hay empleados registrados
+          a.btn.btn-warning(href="/empleados/crear") Crear primer empleado

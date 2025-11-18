@@ -1,0 +1,87 @@
+//- views/auth/registro.pug
+extends ../layout/layout
+
+block content
+  .container
+    .row.justify-content-center.mt-5
+      .col-md-6
+        .card.shadow
+          .card-body.p-5
+            h2.text-center.mb-4
+              i.bi.bi-person-plus-fill.text-success
+              |  Crear Cuenta
+            
+            if error
+              .alert.alert-danger.alert-dismissible.fade.show(role='alert')
+                i.bi.bi-exclamation-triangle-fill
+                |  #{error}
+                button.btn-close(type='button' data-bs-dismiss='alert')
+
+            form(method='POST' action='/auth/registro')
+              .mb-3
+                label.form-label(for='nombre') 👤 Nombre Completo
+                input#nombre.form-control(
+                  type='text'
+                  name='nombre'
+                  placeholder='Juan Pérez'
+                  required
+                )
+
+              .mb-3
+                label.form-label(for='email') 📧 Email
+                input#email.form-control(
+                  type='email'
+                  name='email'
+                  placeholder='tu@email.com'
+                  required
+                )
+
+              .row
+                .col-md-6.mb-3
+                  label.form-label(for='password') 🔒 Contraseña
+                  input#password.form-control(
+                    type='password'
+                    name='password'
+                    placeholder='Mínimo 6 caracteres'
+                    minlength='6'
+                    required
+                  )
+
+                .col-md-6.mb-3
+                  label.form-label(for='passwordConfirm') 🔒 Confirmar
+                  input#passwordConfirm.form-control(
+                    type='password'
+                    name='passwordConfirm'
+                    placeholder='Repite la contraseña'
+                    required
+                  )
+
+              .mb-3
+                label.form-label(for='rol') 👔 Rol
+                select#rol.form-select(name='rol' required)
+                  option(value='') Selecciona un rol
+                  option(value='coordinador') Coordinador
+                  option(value='planner') Planner
+                  option(value='administrador') Administrador
+
+              .mb-3
+                label.form-label(for='area') 🏢 Área
+                select#area.form-select(name='area' required)
+                  option(value='') Selecciona un área
+                  option(value='Producción y Logística') Producción y Logística
+                  option(value='Planificación y Finanzas') Planificación y Finanzas
+                  option(value='Atención al Cliente') Atención al Cliente
+                  option(value='Administración') Administración
+
+              .d-grid.gap-2
+                button.btn.btn-success.btn-lg(type='submit')
+                  i.bi.bi-check-circle
+                  |  Registrarse
+
+            hr.my-4
+
+            .text-center
+              p.text-muted ¿Ya tienes cuenta?
+              a.btn.btn-outline-primary(href='/auth/login')
+                i.bi.bi-box-arrow-in-right
+                |  Iniciar Sesión

@@ -1,0 +1,52 @@
+//- views/auth/perfil.pug
+extends ../layout/layout
+
+block content
+  .container.mt-5
+    .row.justify-content-center
+      .col-md-8
+        .card.shadow
+          .card-header.bg-primary.text-white
+            h3
+              i.bi.bi-person-circle
+              |  Mi Perfil
+
+          .card-body.p-4
+            .row
+              .col-md-4.text-center
+                .mb-3
+                  i.bi.bi-person-circle.display-1.text-primary
+
+                .badge.bg-info.fs-6.mb-2= usuario.rol.toUpperCase()
+                
+              .col-md-8
+                h4.mb-4= usuario.nombre
+
+                .mb-3
+                  strong
+                    i.bi.bi-envelope-fill.text-primary
+                    |  Email:
+                  p.text-muted.ms-4= usuario.email
+
+                .mb-3
+                  strong
+                    i.bi.bi-briefcase-fill.text-success
+                    |  Área:
+                  p.text-muted.ms-4= usuario.area
+
+                .mb-3
+                  strong
+                    i.bi.bi-shield-fill.text-warning
+                    |  Rol:
+                  p.text-muted.ms-4= usuario.rol
+
+                hr.my-4
+
+                .d-grid.gap-2
+                  a.btn.btn-outline-primary(href='/auth/editar-perfil')
+                    i.bi.bi-pencil-square
+                    |  Editar Perfil
+                  
+                  a.btn.btn-outline-danger(href='/auth/logout')
+                    i.bi.bi-box-arrow-right
+                    |  Cerrar Sesión

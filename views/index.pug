@@ -2,24 +2,218 @@
 extends layout/layout
 
 block content
+  //- 🎨 Hero Section - Siempre visible
   .hero-section.bg-primary.text-white.py-5
     .container
       .row.align-items-center
         .col-lg-6
           h1.display-4.fw-bold Eventify - Sistema de Gestión
           p.lead Plataforma integral para la gestión de eventos
-          a.btn.btn-light.btn-lg.mt-3(href="/clientes") 
-            i.bi.bi-arrow-right-circle.me-2
-            | Comenzar ahora
+          
+          //- 👤 Botón condicional según autenticación
+          if usuario
+            .mt-3
+              p.mb-2
+                i.bi.bi-check-circle-fill.me-2
+                | Bienvenido, #{usuario.nombre}!
+              a.btn.btn-light.btn-lg(href="/eventos") 
+                i.bi.bi-calendar-event.me-2
+                | Ver Eventos
+          else
+            a.btn.btn-light.btn-lg.mt-3(href="/auth/login") 
+              i.bi.bi-arrow-right-circle.me-2
+              | Comenzar ahora
+        
         .col-lg-6
-          img.img-fluid.rounded(src="https://images.unsplash.com/photo-1511795409834-ef04bbd61622?ixlib=rb-4.0.3&auto=format&fit=crop&w=600&q=80", alt="Sistema de gestión de eventos")
+          img.img-fluid.rounded(
+            src="https://images.unsplash.com/photo-1511795409834-ef04bbd61622?ixlib=rb-4.0.3&auto=format&fit=crop&w=600&q=80", 
+            alt="Sistema de gestión de eventos"
+          )
 
-  .container.my-5
-    .row.text-center
-      each module in [{name: 'Clientes', icon: 'people-fill', route: '/clientes', color: 'primary'}, {name: 'Eventos', icon: 'calendar-event', route: '/eventos', color: 'success'}, {name: 'Empleados', icon: 'person-badge', route: '/empleados', color: 'warning'}, {name: 'Tareas', icon: 'list-task', route: '/tareas', color: 'info'}]
-        .col-md-3.mb-4
-          .card.h-100.text-center
+  //- 📊 Dashboard con estadísticas (solo si hay sesión)
+  if usuario
+    .container.my-5
+      .row.mb-4
+        .col-12
+          h2.text-center.mb-4
+            i.bi.bi-speedometer2.text-primary.me-2
+            | Dashboard
+      
+      //- Tarjetas de estadísticas
+      .row.text-center.g-4.mb-5
+        .col-md-3
+          .card.h-100.border-primary.shadow-sm
             .card-body
-              i.bi(class=`bi-${module.icon} fs-1 text-${module.color} mb-3`)
-              h4.card-title= module.name
-              a.btn(class=`btn-outline-${module.color}`, href=module.route) Administrar
+              i.bi.bi-calendar-event.fs-1.text-primary.mb-3
+              h3.card-title= eventos ? eventos.length : 0
+              p.card-text.text-muted Eventos Activos
+              a.btn.btn-outline-primary.btn-sm(href='/eventos') Ver todos
+        
+        .col-md-3
+          .card.h-100.border-success.shadow-sm
+            .card-body
+              i.bi.bi-people-fill.fs-1.text-success.mb-3
+              h3.card-title= clientes ? clientes.length : 0
+              p.card-text.text-muted Clientes
+              a.btn.btn-outline-success.btn-sm(href='/clientes') Ver todos
+        
+        .col-md-3
+          .card.h-100.border-warning.shadow-sm
+            .card-body
+              i.bi.bi-person-badge.fs-1.text-warning.mb-3
+              h3.card-title= empleados ? empleados.length : 0
+              p.card-text.text-muted Empleados
+              a.btn.btn-outline-warning.btn-sm(href='/empleados') Ver todos
+        
+        .col-md-3
+          .card.h-100.border-info.shadow-sm
+            .card-body
+              i.bi.bi-list-task.fs-1.text-info.mb-3
+              h3.card-title= tareas ? tareas.length : 0
+              p.card-text.text-muted Tareas
+              a.btn.btn-outline-info.btn-sm(href='/tareas') Ver todos
+
+      //- 🚀 Acciones Rápidas
+      .row.mb-5
+        .col-12
+          .card.shadow
+            .card-header.bg-primary.text-white
+              h5.mb-0
+                i.bi.bi-lightning-charge-fill.me-2
+                | Acciones Rápidas
+            .card-body
+              .row.g-3
+                .col-md-3
+                  a.btn.btn-outline-primary.w-100.py-3(href='/eventos/crear')
+                    i.bi.bi-plus-circle.fs-4.d-block.mb-2
+                    | Nuevo Evento
+                
+                .col-md-3
+                  a.btn.btn-outline-success.w-100.py-3(href='/clientes/nuevo')
+                    i.bi.bi-person-plus.fs-4.d-block.mb-2
+                    | Nuevo Cliente
+                
+                .col-md-3
+                  a.btn.btn-outline-warning.w-100.py-3(href='/empleados/crear')
+                    i.bi.bi-person-badge.fs-4.d-block.mb-2
+                    | Nuevo Empleado
+                
+                .col-md-3
+                  a.btn.btn-outline-info.w-100.py-3(href='/tareas/crear')
+                    i.bi.bi-clipboard-plus.fs-4.d-block.mb-2
+                    | Nueva Tarea
+
+      //- 📋 Últimas Actividades
+      .row
+        .col-md-6.mb-4
+          .card.shadow-sm.h-100
+            .card-header.bg-light
+              h5.mb-0
+                i.bi.bi-clock-history.me-2
+                | Eventos Recientes
+            .card-body
+              if eventos && eventos.length > 0
+                .list-group.list-group-flush
+                  each evento in eventos.slice(0, 5)
+                    .list-group-item.d-flex.justify-content-between.align-items-center
+                      div
+                        strong= evento.nombre
+                        br
+                        small.text-muted
+                          i.bi.bi-geo-alt.me-1
+                          = evento.lugar
+                      span.badge.bg-primary.rounded-pill= evento.estado || 'Activo'
+              else
+                .text-center.py-4
+                  i.bi.bi-calendar-x.fs-1.text-muted.d-block.mb-2
+                  p.text-muted No hay eventos registrados
+                  a.btn.btn-primary.btn-sm(href='/eventos/crear') Crear primer evento
+        
+        .col-md-6.mb-4
+          .card.shadow-sm.h-100
+            .card-header.bg-light
+              h5.mb-0
+                i.bi.bi-list-check.me-2
+                | Tareas Pendientes
+            .card-body
+              if tareas && tareas.length > 0
+                .list-group.list-group-flush
+                  each tarea in tareas.slice(0, 5)
+                    .list-group-item.d-flex.justify-content-between.align-items-center
+                      div
+                        strong= tarea.titulo
+                        br
+                        small.text-muted= tarea.area
+                      span.badge(
+                        class=tarea.estado === 'pendiente' ? 'bg-warning' : tarea.estado === 'en proceso' ? 'bg-info' : 'bg-success'
+                      )= tarea.estado
+              else
+                .text-center.py-4
+                  i.bi.bi-check-circle.fs-1.text-muted.d-block.mb-2
+                  p.text-muted No hay tareas pendientes
+                  a.btn.btn-info.btn-sm(href='/tareas/crear') Crear primera tarea
+
+  //- 📦 Sección de Módulos (solo si NO hay sesión)
+  else
+    .container.my-5
+      .row.mb-4
+        .col-12
+          h2.text-center.mb-4
+            i.bi.bi-grid-3x3-gap-fill.text-primary.me-2
+            | Módulos del Sistema
+          p.text-center.text-muted Inicia sesión para acceder a todas las funcionalidades
+      
+      .row.text-center.g-4
+        each module in [{name: 'Clientes', icon: 'people-fill', route: '/clientes', color: 'primary', desc: 'Gestiona tu cartera de clientes'}, {name: 'Eventos', icon: 'calendar-event', route: '/eventos', color: 'success', desc: 'Organiza y planifica eventos'}, {name: 'Empleados', icon: 'person-badge', route: '/empleados', color: 'warning', desc: 'Administra tu equipo de trabajo'}, {name: 'Tareas', icon: 'list-task', route: '/tareas', color: 'info', desc: 'Asigna y controla tareas'}]
+          .col-md-3.mb-4
+            .card.h-100.text-center.shadow-sm
+              .card-body
+                i.bi(class=`bi-${module.icon} fs-1 text-${module.color} mb-3`)
+                h4.card-title= module.name
+                p.card-text.text-muted.small= module.desc
+                button.btn(class=`btn-outline-${module.color}`, disabled)
+                  i.bi.bi-lock-fill.me-1
+                  | Requiere Sesión
+
+      //- 🌟 Llamado a la acción
+      .row.mt-5
+        .col-12
+          .card.shadow-lg.border-0
+            .card-body.p-5.text-center
+              h3.mb-3
+                i.bi.bi-rocket-takeoff.text-primary.me-2
+                | ¿Listo para comenzar?
+              p.lead.text-muted Inicia sesión para acceder a todas las funcionalidades
+              .d-grid.gap-3.d-md-flex.justify-content-md-center.mt-4
+                a.btn.btn-primary.btn-lg.px-5(href='/auth/login')
+                  i.bi.bi-box-arrow-in-right.me-2
+                  | Iniciar Sesión
+                a.btn.btn-outline-success.btn-lg.px-5(href='/auth/registro')
+                  i.bi.bi-person-plus.me-2
+                  | Crear Cuenta
+
+      //- ✨ Características del sistema
+      .row.mt-5.g-4
+        .col-md-4
+          .card.h-100.border-0.shadow-sm
+            .card-body.text-center.p-4
+              .bg-primary.bg-opacity-10.rounded-circle.d-inline-flex.align-items-center.justify-content-center.mb-3(style='width: 80px; height: 80px;')
+                i.bi.bi-shield-check.text-primary.fs-1
+              h5 Seguro y Confiable
+              p.text-muted Sistema con autenticación y permisos por rol
+        
+        .col-md-4
+          .card.h-100.border-0.shadow-sm
+            .card-body.text-center.p-4
+              .bg-success.bg-opacity-10.rounded-circle.d-inline-flex.align-items-center.justify-content-center.mb-3(style='width: 80px; height: 80px;')
+                i.bi.bi-graph-up-arrow.text-success.fs-1
+              h5 Gestión Eficiente
+              p.text-muted Administra eventos, clientes y tareas en un solo lugar
+        
+        .col-md-4
+          .card.h-100.border-0.shadow-sm
+            .card-body.text-center.p-4
+              .bg-info.bg-opacity-10.rounded-circle.d-inline-flex.align-items-center.justify-content-center.mb-3(style='width: 80px; height: 80px;')
+                i.bi.bi-people.text-info.fs-1
+              h5 Trabajo en Equipo
+              p.text-muted Colabora con tu equipo en tiempo real

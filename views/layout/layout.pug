@@ -69,7 +69,7 @@ html(lang="es")
                 | Eventify
               hr
             
-            //- 🔐 Información de Usuario en Sidebar
+            //- Información de Usuario en Sidebar
             if usuario
               .alert.alert-info.py-2.px-3.mb-3
                 .d-flex.align-items-center
@@ -93,7 +93,7 @@ html(lang="es")
                     i.bi.bi-lock-fill.text-warning.small
               
               li.nav-item
-                a.nav-link(class=(currentPath.startsWith('/clientes') ? 'active' : ''), href="/clientes")
+                a.nav-link(class=(currentPath && currentPath.startsWith && currentPath.startsWith('/clientes') ? 'active' : ''), href="/clientes")
                   i.bi.bi-people-fill.me-2
                   | Clientes
                   if !usuario
@@ -101,7 +101,7 @@ html(lang="es")
                     i.bi.bi-lock-fill.text-warning.small
               
               li.nav-item
-                a.nav-link(class=(currentPath.startsWith('/eventos') ? 'active' : ''), href="/eventos")
+                a.nav-link(class=(currentPath && currentPath.startsWith && currentPath.startsWith('/eventos') ? 'active' : ''), href="/eventos")
                   i.bi.bi-calendar-event.me-2
                   | Eventos
                   if !usuario
@@ -109,7 +109,7 @@ html(lang="es")
                     i.bi.bi-lock-fill.text-warning.small
               
               li.nav-item
-                a.nav-link(class=(currentPath.startsWith('/empleados') ? 'active' : ''), href="/empleados")
+                a.nav-link(class=(currentPath && currentPath.startsWith && currentPath.startsWith('/empleados') ? 'active' : ''), href="/empleados")
                   i.bi.bi-person-badge.me-2
                   | Empleados
                   if !usuario
@@ -117,14 +117,14 @@ html(lang="es")
                     i.bi.bi-lock-fill.text-warning.small
               
               li.nav-item
-                a.nav-link(class=(currentPath.startsWith('/tareas') ? 'active' : ''), href="/tareas")
+                a.nav-link(class=(currentPath && currentPath.startsWith && currentPath.startsWith('/tareas') ? 'active' : ''), href="/tareas")
                   i.bi.bi-list-task.me-2
                   | Tareas
                   if !usuario
                     |  
                     i.bi.bi-lock-fill.text-warning.small
             
-            //- 🔐 Botones de Autenticación en Sidebar
+            //- Botones de Autenticación en Sidebar
             hr.my-3
             if usuario
               .d-grid

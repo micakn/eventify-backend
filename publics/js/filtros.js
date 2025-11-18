@@ -73,7 +73,7 @@ class FiltrosUtil {
     }
 }
 
-// Configuraciones específicas para cada módulo - CORREGIDO
+// Configuración de filtros por módulo: define inputs y columnas a usar para cada vista
 const FiltrosConfig = {
     eventos: {
         searchInputId: 'searchInput',

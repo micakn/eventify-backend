@@ -21,8 +21,8 @@ import eventoRoutes from './routes/eventoRoutes.js';
 // Importar routers WEB (vistas)
 import clienteWebRoutes from './routes/clienteWebRoutes.js';
 import eventoWebRoutes from './routes/eventoWebRoutes.js';
-import empleadoWebRoutes from './routes/empleadoWebRoutes.js'; // 👈 AGREGAR ESTA LÍNEA
-import tareaWebRoutes from './routes/tareaWebRoutes.js';       // 👈 AGREGAR ESTA LÍNEA
+import empleadoWebRoutes from './routes/empleadoWebRoutes.js'; // Rutas web para manejo de empleados (vistas)
+import tareaWebRoutes from './routes/tareaWebRoutes.js';       // Rutas web para manejo de tareas (vistas)
 
 // Modelos (usarán Mongoose internamente)
 import ClienteModel from './models/ClienteModel.js';
@@ -53,7 +53,7 @@ app.use(cookieParser());
 // Archivos estáticos
 app.use(express.static(path.join(__dirname, 'publics')));
 
-// 👤 Middleware global para verificar usuario en TODAS las vistas
+// Middleware global para verificar usuario en TODAS las vistas
 app.use(async (req, res, next) => {
   res.locals.currentPath = req.path;
   res.locals.usuario = null;
@@ -111,8 +111,9 @@ app.get('/', verificarAuth, async (req, res) => {
 // -------------------- Rutas Web Protegidas --------------------
 app.use('/clientes', verificarAuth, clienteWebRoutes);
 app.use('/eventos', verificarAuth, eventoWebRoutes);
-app.use('/empleados', verificarAuth, empleadoWebRoutes); // ✅ Ahora está definido
-app.use('/tareas', verificarAuth, tareaWebRoutes);       // ✅ Ahora está definido
+// Registrar rutas web protegidas (requieren autenticación)
+app.use('/empleados', verificarAuth, empleadoWebRoutes);
+app.use('/tareas', verificarAuth, tareaWebRoutes);
 
 // -------------------- APIs Protegidas --------------------
 app.use('/api/clientes', verificarAuth, clienteRoutes);
@@ -132,12 +133,12 @@ app.use((req, res) => {
 connectMongo(process.env.MONGODB_URI)
   .then(() => {
     app.listen(PORT, () => {
-      console.log(`✅ Servidor corriendo en http://localhost:${PORT}`);
-      console.log(`🔐 Autenticación: http://localhost:${PORT}/auth/login`);
-      console.log(`📊 Dashboard: http://localhost:${PORT}/`);
+        console.log(`Servidor corriendo en http://localhost:${PORT}`);
+          console.log(`Autenticación: http://localhost:${PORT}/auth/login`);
+      console.log(`Dashboard: http://localhost:${PORT}/`);
     });
   })
   .catch((err) => {
-    console.error('❌ Error conectando a Mongo:', err);
+    console.error('Error conectando a Mongo:', err);
     process.exit(1);
   });

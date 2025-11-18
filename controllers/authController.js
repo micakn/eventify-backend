@@ -2,7 +2,7 @@
 import UsuarioModel from '../models/UsuarioModel.js';
 import { generarToken } from '../middleware/auth.js';
 
-// 📝 Mostrar formulario de registro
+// Mostrar formulario de registro
 export function mostrarRegistro(req, res) {
   res.render('auth/registro', {
     title: 'Registro - Eventify',
@@ -89,7 +89,7 @@ export function mostrarLogin(req, res) {
   });
 }
 
-// 🔑 Procesar login
+// Procesar login
 export async function login(req, res) {
   try {
     const { email, password } = req.body;
@@ -139,13 +139,13 @@ export async function login(req, res) {
   }
 }
 
-// 🚪 Cerrar sesión
+// Cerrar sesión
 export function logout(req, res) {
   res.clearCookie('token');
   res.redirect('/auth/login');
 }
 
-// 👤 Obtener perfil del usuario actual
+// Obtener perfil del usuario actual
 export async function perfil(req, res) {
   res.render('auth/perfil', {
     title: 'Mi Perfil - Eventify',

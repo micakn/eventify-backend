@@ -170,8 +170,8 @@ const eventosSeed = [
 // -------------------- FUNCIÓN PRINCIPAL --------------------
 async function seedDB() {
   await connectMongo(process.env.MONGODB_URI);
-  console.log('✅ Conectado a MongoDB Atlas');
-  console.log('🧹 Limpiando base de datos...');
+  console.log('Conectado a MongoDB Atlas');
+  console.log('Limpiando base de datos...');
 
   await Promise.all([
     Cliente.deleteMany(),
@@ -180,7 +180,7 @@ async function seedDB() {
     Tarea.deleteMany(),
   ]);
 
-  console.log('📥 Insertando datos base...');
+  console.log('Insertando datos base...');
   const clientes = await Cliente.insertMany(clientesSeed);
   const empleados = await Empleado.insertMany(empleadosSeed);
   const eventos = await Evento.insertMany(eventosSeed);
@@ -304,16 +304,16 @@ async function seedDB() {
   ];
 
   await Tarea.insertMany(tareasSeed);
-  console.log('🌿 Tareas cargadas correctamente');
+  console.log('Tareas cargadas correctamente');
 
   await disconnectMongo();
-  console.log('🔌 Conexión cerrada con MongoDB');
+  console.log('Conexión cerrada con MongoDB');
 }
 
 // -------------------- EJECUCIÓN --------------------
 seedDB()
   .then(() => process.exit(0))
   .catch((err) => {
-    console.error('❌ Error al cargar datos:', err);
+    console.error('Error al cargar datos:', err);
     process.exit(1);
   });

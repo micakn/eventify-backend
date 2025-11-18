@@ -60,10 +60,15 @@ function toPlain(doc) {
 class EventoModel {
   async getAll() {
     try {
-      const eventos = await Evento.find()
-        .populate('clienteId', 'nombre email telefono empresa')
-        .populate('empleadoId', 'nombre rol area')
-        .sort({ createdAt: -1 })
+      let query = Evento.find().sort({ createdAt: -1 });
+      const registered = mongoose.modelNames ? mongoose.modelNames() : Object.keys(mongoose.models || {});
+      if (registered.includes('Cliente')) {
+        query = query.populate('clienteId', 'nombre email telefono empresa');
+      }
+      if (registered.includes('Empleado')) {
+        query = query.populate('empleadoId', 'nombre rol area');
+      }
+      const eventos = await query;
       return eventos.map(toPlain);
     } catch (error) {
       console.error('Error al obtener los eventos:', error);
@@ -74,9 +79,15 @@ class EventoModel {
   async getById(id) {
     if (!mongoose.isValidObjectId(id)) return null;
     try {
-      const evento = await Evento.findById(id)
-        .populate('clienteId', 'nombre email telefono empresa')
-        .populate('empleadoId', 'nombre rol area')
+      let query = Evento.findById(id);
+      const registered = mongoose.modelNames ? mongoose.modelNames() : Object.keys(mongoose.models || {});
+      if (registered.includes('Cliente')) {
+        query = query.populate('clienteId', 'nombre email telefono empresa');
+      }
+      if (registered.includes('Empleado')) {
+        query = query.populate('empleadoId', 'nombre rol area');
+      }
+      const evento = await query;
       return evento ? toPlain(evento) : null;
     } catch (error) {
       console.error('Error al obtener evento por ID:', error);
@@ -86,11 +97,23 @@ class EventoModel {
 
   async add(evento) {
     try {
+      // Normalizar fechas: intentar convertir a Date y proveer valores por defecto
+      let fechaInicio = evento.fechaInicio ? new Date(evento.fechaInicio) : null;
+      let fechaFin = evento.fechaFin ? new Date(evento.fechaFin) : null;
+
+      if (!fechaInicio) {
+        fechaInicio = new Date();
+      }
+      if (!fechaFin) {
+        // Por defecto, 1 día después de inicio
+        fechaFin = new Date(fechaInicio.getTime() + 24 * 60 * 60 * 1000);
+      }
+
       const nuevo = await Evento.create({
         nombre: evento.nombre,
         descripcion: evento.descripcion || '',
-        fechaInicio: evento.fechaInicio || null,
-        fechaFin: evento.fechaFin || null,
+        fechaInicio,
+        fechaFin,
         lugar: evento.lugar || '',
         presupuesto: Number(evento.presupuesto) || 0,
         tipo: evento.tipo || 'corporativo',
@@ -100,13 +123,23 @@ class EventoModel {
       });
 
       // Repopular para obtener los datos relacionados
-      const eventoPopulado = await Evento.findById(nuevo._id)
-        .populate('clienteId', 'nombre email telefono empresa')
-        .populate('empleadoId', 'nombre rol area');
-      
+      let query = Evento.findById(nuevo._id);
+      const registered = mongoose.modelNames ? mongoose.modelNames() : Object.keys(mongoose.models || {});
+      if (registered.includes('Cliente')) {
+        query = query.populate('clienteId', 'nombre email telefono empresa');
+      }
+      if (registered.includes('Empleado')) {
+        query = query.populate('empleadoId', 'nombre rol area');
+      }
+      const eventoPopulado = await query;
       return toPlain(eventoPopulado);
     } catch (error) {
       console.error('Error al agregar evento:', error);
+      try {
+        process.stderr.write(`EVENTO_ADD_ERROR: ${error.stack || error}\n`);
+      } catch (e) {
+        // ignore
+      }
       return null;
     }
   }
@@ -114,13 +147,18 @@ class EventoModel {
   async update(id, evento) {
     if (!mongoose.isValidObjectId(id)) return null;
     try {
-      const actualizado = await Evento.findByIdAndUpdate(id, evento, {
+      let query = Evento.findByIdAndUpdate(id, evento, {
         new: true,
         runValidators: true,
-      })
-      .populate('clienteId', 'nombre email telefono empresa')
-      .populate('empleadoId', 'nombre rol area');
-
+      });
+      const registered = mongoose.modelNames ? mongoose.modelNames() : Object.keys(mongoose.models || {});
+      if (registered.includes('Cliente')) {
+        query = query.populate('clienteId', 'nombre email telefono empresa');
+      }
+      if (registered.includes('Empleado')) {
+        query = query.populate('empleadoId', 'nombre rol area');
+      }
+      const actualizado = await query;
       return actualizado ? toPlain(actualizado) : null;
     } catch (error) {
       console.error('Error al actualizar evento:', error);
@@ -131,14 +169,19 @@ class EventoModel {
   async patch(id, campos) {
     if (!mongoose.isValidObjectId(id)) return null;
     try {
-      const actualizado = await Evento.findByIdAndUpdate(
+      let query = Evento.findByIdAndUpdate(
         id,
         { $set: campos },
         { new: true, runValidators: true }
-      )
-      .populate('clienteId', 'nombre email telefono empresa')
-      .populate('empleadoId', 'nombre rol area');
-
+      );
+      const registered = mongoose.modelNames ? mongoose.modelNames() : Object.keys(mongoose.models || {});
+      if (registered.includes('Cliente')) {
+        query = query.populate('clienteId', 'nombre email telefono empresa');
+      }
+      if (registered.includes('Empleado')) {
+        query = query.populate('empleadoId', 'nombre rol area');
+      }
+      const actualizado = await query;
       return actualizado ? toPlain(actualizado) : null;
     } catch (error) {
       console.error('Error al actualizar parcialmente evento:', error);

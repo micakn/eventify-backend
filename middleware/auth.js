@@ -2,16 +2,18 @@
 import jwt from 'jsonwebtoken';
 import UsuarioModel from '../models/UsuarioModel.js';
 
-// 🔐 Generar Token JWT
+// Generar Token JWT
 export function generarToken(userId) {
+  const secret = process.env.JWT_SECRET || 'eventify-test-secret';
+  if (!process.env.JWT_SECRET) console.warn('JWT_SECRET no definido. Usando secreto por defecto de desarrollo.');
   return jwt.sign(
     { id: userId },
-    process.env.JWT_SECRET,
+    secret,
     { expiresIn: process.env.JWT_EXPIRES_IN || '7d' }
   );
 }
 
-// 🛡️ Middleware: Verificar que el usuario esté autenticado
+// Middleware: Verificar que el usuario esté autenticado
 export async function verificarAuth(req, res, next) {
   try {
     // 1. Obtener token de las cookies o del header
@@ -25,7 +27,8 @@ export async function verificarAuth(req, res, next) {
     }
 
     // 2. Verificar token
-    const decoded = jwt.verify(token, process.env.JWT_SECRET);
+    const secret = process.env.JWT_SECRET || 'eventify-test-secret';
+    const decoded = jwt.verify(token, secret);
 
     // 3. Buscar usuario
     const usuario = await UsuarioModel.getById(decoded.id);
@@ -49,7 +52,7 @@ export async function verificarAuth(req, res, next) {
   }
 }
 
-// 👑 Middleware: Verificar roles específicos
+// Middleware: Verificar roles específicos
 export function verificarRol(...rolesPermitidos) {
   return (req, res, next) => {
     if (!req.usuario) {

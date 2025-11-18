@@ -46,7 +46,7 @@ const EventoWebController = {
             });
 
         } catch (error) {
-            console.error('❌ Error al listar eventos desde MongoDB:', error);
+            console.error('Error al listar eventos desde MongoDB:', error);
             
             res.render('eventos/eventos', {
                 title: 'Eventos',
@@ -133,7 +133,7 @@ const EventoWebController = {
             res.redirect('/eventos');
             
         } catch (error) {
-            console.error('❌ Error al crear evento en MongoDB:', error);
+            console.error('Error al crear evento en MongoDB:', error);
 
             // Recargar clientes y empleados para mostrar el formulario nuevamente
             const [clientes, empleados] = await Promise.all([
@@ -164,7 +164,7 @@ const EventoWebController = {
 
             // Verificar que el ID sea válido
             if (!id || id === 'undefined') {
-                console.log('❌ ID inválido');
+                console.log('ID inválido');
                 return res.redirect('/eventos');
             }
             
@@ -177,7 +177,7 @@ const EventoWebController = {
             console.log('Evento encontrado:', evento ? evento.nombre : 'No encontrado');
             
             if (!evento) {
-                console.log('❌ Evento no encontrado en la base de datos');
+                console.log('Evento no encontrado en la base de datos');
                 return res.redirect('/eventos');
             }
 
@@ -254,12 +254,12 @@ const EventoWebController = {
                 throw new Error('No se pudo actualizar el evento');
             }
 
-            console.log('✅ Evento actualizado en MongoDB:', id);
+            console.log('Evento actualizado en MongoDB:', id);
 
             res.redirect('/eventos');
             
         } catch (error) {
-            console.error('❌ Error al actualizar evento en MongoDB:', error);
+            console.error('Error al actualizar evento en MongoDB:', error);
 
             // Recargar datos para mostrar el formulario con error
             const [clientes, empleados] = await Promise.all([
@@ -295,12 +295,12 @@ const EventoWebController = {
                 throw new Error('No se pudo eliminar el evento');
             }
 
-            console.log('✅ Evento eliminado de MongoDB:', id);
+            console.log('Evento eliminado de MongoDB:', id);
 
             res.redirect('/eventos');
             
         } catch (error) {
-            console.error('❌ Error al eliminar evento de MongoDB:', error);
+            console.error('Error al eliminar evento de MongoDB:', error);
             res.redirect('/eventos');
         }
     },

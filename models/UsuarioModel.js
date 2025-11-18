@@ -28,14 +28,14 @@ const UsuarioSchema = new mongoose.Schema(
   { timestamps: true }
 );
 
-// 🔒 Encriptar password antes de guardar
+// Encriptar password antes de guardar
 UsuarioSchema.pre('save', async function (next) {
   if (!this.isModified('password')) return next();
   this.password = await bcrypt.hash(this.password, 10);
   next();
 });
 
-// 🔑 Método para comparar passwords
+// Método para comparar passwords
 UsuarioSchema.methods.compararPassword = async function (passwordIngresado) {
   return await bcrypt.compare(passwordIngresado, this.password);
 };
@@ -47,7 +47,7 @@ function toPlain(doc) {
   if (!doc) return null;
   const obj = doc.toObject({ versionKey: false });
   obj.id = String(obj._id);
-  delete obj.password; // 🚨 NUNCA devolver el password
+  delete obj.password; // NUNCA devolver el password
   return obj;
 }
 

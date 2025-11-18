@@ -169,6 +169,7 @@ El proyecto incluye una suite de pruebas para asegurar la calidad y el correcto 
 Para ejecutar las pruebas:
 ```bash
 npm test
+```
 
 Las pruebas cubren:
 -   **Autenticación:** Registro, inicio de sesión y cierre de sesión.

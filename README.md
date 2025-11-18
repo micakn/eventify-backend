@@ -99,6 +99,8 @@ El sistema está construido siguiendo el patrón de diseño **Modelo-Vista-Contr
 ├── tests/             # Pruebas unitarias y de integración
 ├── app.js             # Archivo principal
 └── .env               # Variables de entorno
+
+
 ## Instalación y Configuración Local
 
 **Requisitos:**

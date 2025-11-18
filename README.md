@@ -98,7 +98,8 @@ El sistema está construido siguiendo el patrón de diseño **Modelo-Vista-Contr
 ├── publics/           # Archivos estáticos
 ├── tests/             # Pruebas unitarias y de integración
 ├── app.js             # Archivo principal
-└── .env               # Variables de entorno
+└── .env               # Variables de entorno 
+```
 
 
 ## Instalación y Configuración Local

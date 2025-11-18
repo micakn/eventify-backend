@@ -38,19 +38,19 @@ block content
 
                 dt.col-md-3 Cliente
                 dd.col-md-9
-                  if evento.cliente
-                    a(href=`/clientes/${evento.cliente.id || evento.cliente._id}`)= evento.cliente.nombre || (`Cliente ${String(evento.cliente.id || evento.cliente._id).slice(0,6)}`)
-                    if evento.cliente.empresa
+                  if evento.clienteId
+                    a(href=`/clientes/${evento.clienteId.id || evento.clienteId._id}`)= evento.clienteId.nombre || (`Cliente ${String(evento.clienteId.id || evento.clienteId._id).slice(0,6)}`)
+                    if evento.clienteId.empresa
                       br
-                      small.text-muted= evento.cliente.empresa
+                      small.text-muted= evento.clienteId.empresa
                   else
                     span.text-muted No asignado
 
                 dt.col-md-3 Empleado Responsable
                 dd.col-md-9
-                  if evento.empleado
-                    a(href=`/empleados/${evento.empleado.id || evento.empleado._id}`)= evento.empleado.nombre || (`Empleado ${String(evento.empleado.id || evento.empleado._id).slice(0,6)}`)
+                  if evento.empleadoId
+                    a(href=`/empleados/${evento.empleadoId.id || evento.empleadoId._id}`)= evento.empleadoId.nombre || (`Empleado ${String(evento.empleadoId.id || evento.empleadoId._id).slice(0,6)}`)
                     br
-                    small.text-muted= evento.empleado.rol
+                    small.text-muted= evento.empleadoId.rol
                   else
                     span.text-muted No asignado

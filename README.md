@@ -1,4 +1,4 @@
-# Eventify - Sistema de Gestión de Eventos (Versión 3.0)
+# Eventify - Sistema de Gestión de Eventos (Versión 2.0)
 
 Eventify es una aplicación web backend completa desarrollada con **Node.js, Express y MongoDB Atlas**. Diseñada para la gestión integral de eventos, permite administrar clientes, empleados, eventos y tareas a través de una API RESTful segura y una interfaz web dinámica.
 
@@ -18,14 +18,14 @@ La primera versión sentó las bases de la aplicación:
 -   **Interfaz Web (Pug):** Se desarrollaron vistas iniciales para la visualización de datos.
 -   **Persistencia:** Los datos se manejaban de forma local, sin una base de datos persistente.
 
-### Versión 2.0 - Migración a Base de Datos (MongoDB)
+### Versión 1.1 - Migración a Base de Datos (MongoDB)
 La segunda entrega se centró en la persistencia y el manejo de datos a nivel profesional:
 -   **Integración con MongoDB Atlas:** Se migró toda la persistencia de datos a una base de datos NoSQL en la nube.
 -   **Mongoose como ODM:** Se refactorizaron todos los modelos para usar esquemas de Mongoose, permitiendo validaciones y relaciones.
 -   **Relaciones entre Entidades:** Se implementaron relaciones entre los modelos (ej. un Evento se relaciona con un Cliente) usando `ref` y `populate`.
 -   **Script de Seeding:** Se creó el archivo `seed.js` para poblar la base de datos con datos de prueba.
 
-### Versión 3.0 (Entrega Final) - Seguridad, Pruebas y Despliegue
+### Versión 2.0 (Entrega Final) - Seguridad, Pruebas y Despliegue
 Esta versión final consolida el proyecto, añadiendo capas críticas de seguridad, calidad y producción:
 -   **Sistema de Autenticación y Autorización (JWT):** Se implementó un sistema completo de registro e inicio de sesión con `bcryptjs` y cookies `HttpOnly`.
 -   **Protección de Rutas con Middleware:** Todas las rutas, tanto de la API como de la interfaz web, ahora están protegidas.
